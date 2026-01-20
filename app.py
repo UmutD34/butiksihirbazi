@@ -11,36 +11,57 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. ESTETİK OTORİTE (APPLE-VARI MODERN CSS) ---
+# --- 2. ESTETİK OTORİTE (PREMIUM CSS) ---
 st.markdown("""
     <style>
-    /* 1. GENEL ZEMİN (Ana Sayfa Beyaz) */
+    /* 1. GENEL ZEMİN */
     .stApp {
-        background-color: #ffffff;
+        background-color: #fbfbfd;
         color: #1d1d1f;
         font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    /* 2. SOL MENÜ (İstediğin Gri Menü) */
+    /* 2. MOBİL MENÜ BUTONU (DİKKAT ÇEKİCİ HALE GETİRME) */
+    /* Menü kapalıyken görünen ok butonu */
+    [data-testid="stSidebarCollapsedControl"] {
+        background-color: #ffffff;
+        color: #d4af37 !important; /* İkon rengi Altın */
+        border: 2px solid #d4af37; /* Altın Çerçeve */
+        border-radius: 50%; /* Yuvarlak */
+        width: 50px;
+        height: 50px;
+        transform: scale(1.2); /* Büyüt */
+        margin-top: 10px;
+        margin-left: 10px;
+        box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); /* Altın Gölge */
+        transition: all 0.3s ease;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"]:hover {
+        background-color: #d4af37;
+        color: #ffffff !important;
+        transform: scale(1.3);
+    }
+
+    /* 3. SOL MENÜ */
     section[data-testid="stSidebar"] {
-        background-color: #f5f5f7; /* Apple Platinum Gri */
+        background-color: #ffffff;
         border-right: 1px solid #d2d2d7;
     }
     
-    /* Menüdeki Başlıklar */
     section[data-testid="stSidebar"] h1, 
     section[data-testid="stSidebar"] h2, 
     section[data-testid="stSidebar"] h3 {
         color: #1d1d1f !important;
     }
 
-    /* 3. ÜRÜN KARTLARI (Kutu Tasarımı) */
+    /* 4. ÜRÜN KARTLARI */
     div[data-testid="column"] {
         background-color: #ffffff;
         border-radius: 18px;
-        padding: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Daha yumuşak gölge */
-        border: 1px solid #e5e5e5;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
         transition: all 0.3s ease;
         text-align: center;
         height: 100%;
@@ -51,27 +72,26 @@ st.markdown("""
     
     div[data-testid="column"]:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         border-color: #d4af37;
     }
 
-    /* 4. RESİMLER */
+    /* 5. RESİMLER */
     div[data-testid="stImage"] {
         display: flex;
         justify-content: center;
         align-items: center;
         height: 220px;
         margin-bottom: 15px;
-        background-color: transparent;
     }
     
     div[data-testid="stImage"] img {
         max-height: 210px !important;
         object-fit: contain !important;
-        mix-blend-mode: multiply; /* Beyaz zeminde kenar izlerini siler */
+        mix-blend-mode: multiply;
     }
 
-    /* 5. METİNLER */
+    /* 6. METİNLER */
     .product-title {
         font-size: 15px;
         font-weight: 600;
@@ -84,26 +104,25 @@ st.markdown("""
         line-height: 1.3;
     }
 
-    /* 6. ARAMA KUTUSU */
+    /* 7. ARAMA KUTUSU */
     .stTextInput > div > div > input {
-        background-color: #f5f5f7;
+        background-color: #ffffff;
         color: #1d1d1f;
         border: 1px solid #d2d2d7;
         border-radius: 12px;
         padding: 12px 15px;
         font-size: 16px;
-        box-shadow: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
     .stTextInput > div > div > input:focus {
         border-color: #0071e3;
-        background-color: #ffffff;
         box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
     }
 
-    /* 7. BUTONLAR */
+    /* 8. BUTONLAR */
     .stButton > button {
-        background-color: #1d1d1f; /* Siyah Buton (Apple Style) */
-        color: #ffffff;
+        background-color: #f5f5f7;
+        color: #1d1d1f;
         border: none;
         border-radius: 20px;
         padding: 8px 20px;
@@ -112,29 +131,26 @@ st.markdown("""
         transition: all 0.2s;
     }
     .stButton > button:hover {
-        background-color: #d4af37; /* Hover'da Altın */
+        background-color: #1d1d1f;
         color: #ffffff;
-        transform: scale(1.02);
     }
 
-    /* 8. DETAY ALANLARI */
+    /* 9. DETAY ALANLARI */
     .story-box {
-        background-color: #fbfbfd;
+        background-color: #ffffff;
         border-left: 4px solid #d4af37;
         padding: 20px;
         border-radius: 0 12px 12px 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         color: #424245;
         font-style: italic;
-        font-size: 15px;
     }
     
     .allegory-section {
-        background-color: #f0f2f5;
+        background-color: #f5f5f7;
         padding: 25px;
         border-radius: 18px;
         margin-top: 20px;
-        border: 1px solid #e1e4e8;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -183,7 +199,7 @@ with st.sidebar:
     
     st.markdown("---")
     
-    if menu == "İletişim":
+    if menu == "📞 İletişim":
         st.info("**Sistem Sorunları ve Geri Bildirim:**\n\n**Palladium Paşabahçe Mağazası**\n\n📩 isdogan@sisecam.com\n📩 palladiummgz@sisecam.com")
     
     elif menu == "📢 Duyurular":
@@ -196,8 +212,7 @@ with st.sidebar:
         **⚠️ Dipnot:** Sistemi kendi imkanlarımız ile geliştirdiğimizden, yoğunluk sebebiyle aksaklıklar yaşanabilir. Geri bildirimleriniz ve fikirleriniz bizim için çok değerlidir.
         """)
     
-    # --- EMEĞİ GEÇENLER (DÜZELTİLMİŞ KOD) ---
-    # Not: Aşağıdaki HTML kodunun başında boşluk bırakılmamıştır.
+    # EMEĞİ GEÇENLER KARTI
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("""<div style='background-color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #d2d2d7; text-align: center; color: #1d1d1f; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
 <div style='font-size: 15px; font-weight: bold; margin-bottom: 5px; color: #000;'>Designed by Umut Doğan</div>
@@ -220,6 +235,9 @@ Palladium ve Hilltown<br>Mağazaları Ürünüdür.
 # --- MOD 1: VİTRİN ---
 if st.session_state.selected_product is None:
     
+    # Mobilde menü uyarısı (İsteğe bağlı, ama buton zaten artık çok belirgin)
+    # st.caption("👈 Menüyü açmak için sol üstteki butona tıklayın.")
+
     c1, c2, c3 = st.columns([1, 6, 1])
     with c2:
         st.markdown("<h1 style='text-align: center; font-size: 40px; font-weight: 700; letter-spacing: -1px;'>Koleksiyonu Keşfet.</h1>", unsafe_allow_html=True)
@@ -239,7 +257,6 @@ if st.session_state.selected_product is None:
     
     for idx, p in enumerate(display_items):
         with cols[idx % 4]:
-            # --- KART ---
             if p.get('image'):
                 st.image(p['image'], use_container_width=True)
             else:
@@ -250,7 +267,6 @@ if st.session_state.selected_product is None:
             if st.button("İncele", key=f"btn_{p['id']}"):
                 select_product(p)
                 st.rerun()
-            # --- KART SONU ---
 
 # --- MOD 2: DETAY SAYFASI ---
 else:
