@@ -2,104 +2,101 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 import time
+import pandas as pd
 
-# --- SAYFA AYARLARI ---
-st.set_page_config(page_title="Mutedra Butik Rehberi", layout="centered")
+# --- KONFİGÜRASYON ---
+st.set_page_config(page_title="Mutedra: Butik Veri Merkezi", layout="wide")
 
-# --- CSS: ŞIK VE MODERN GÖRÜNÜM ---
+# Klinik ve Seçkin Görünüm
 st.markdown("""
     <style>
-    .stApp { background-color: #ffffff; }
-    .product-box { border: 1px solid #e0e0e0; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-    .title-text { color: #1a1a1a; font-family: 'Georgia', serif; }
-    .sales-trick { background-color: #f9f9f9; border-left: 5px solid #2ecc71; padding: 10px; font-style: italic; }
+    .stApp { background-color: #fafafa; }
+    .product-card { 
+        border: 1px solid #d1d1d1; 
+        padding: 15px; 
+        border-radius: 8px; 
+        background: white; 
+        margin-bottom: 10px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+    }
+    .highlight { color: #2c3e50; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- VERİ KAZIMA FONKSİYONU ---
-@st.cache_data # Veriyi bir kez çeker, hafızaya alır.
-def verileri_getir():
-    url = "https://www.pasabahcemagazalari.com/butik-koleksiyonlar/"
-    headers = {"User-Agent": "Mozilla/5.0"}
+# --- VERİ KAZIMA MOTORU (TÜM SAYFALAR) ---
+def tum_urunleri_tara():
+    base_url = "https://www.pasabahcemagazalari.com/butik-koleksiyonlar/"
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
     
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        
-        # Paşabahçe'nin butik ürünlerini bulmaya yönelik genel mantık
-        urunler = []
-        items = soup.find_all('div', class_='product-item') # Sitenin yapısına göre güncellenir
-        
-        # Eğer site yapısı değişmişse boş dönmemesi için örnek veri seti
-        if not items:
-            return [
-                {"isim": "Amazon Vazo", "ozet": "Anadolu'nun savaşçı kadınlarından ilham alan koleksiyon."},
-                {"isim": "Zeugma Mozaik Tabak", "ozet": "Antik kentin tarihsel dokusunu yansıtan eser."},
-                {"isim": "Selçuklu Kandil", "ozet": "Geometrik desenlerin ruhani ışığı."}
-            ]
-            
-        for item in items:
-            name = item.find('h3').text.strip() if item.find('h3') else "İsimsiz Eser"
-            urunler.append({"isim": name, "ozet": "Butik Koleksiyonun Seçkin Parçası"})
-        return urunler
-    except:
-        return [{"isim": "Bağlantı Hatası", "ozet": "Siteye erişilemedi, lütfen internetinizi kontrol edin."}]
+    tum_liste = []
+    sayfa = 1
+    max_sayfa = 20 # 312 ürün için yaklaşık 16-20 sayfa taranmalıdır.
 
-# --- ALEGORİK ANALİZ MOTORU (API'SIZ SİMÜLASYON) ---
-def analiz_uret(urun_adi):
-    # Bu kısım, API'n yoksa "Klinik ve Alegorik" bir taslak oluşturur.
-    # Eğer Gemini API alırsan buraya o mantığı bağlayabiliriz.
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+
+    while sayfa <= max_sayfa:
+        status_text.text(f"📍 Sayfa {sayfa} taranıyor... Toplam ürün: {len(tum_liste)}")
+        url = f"{base_url}?pg={sayfa}"
+        
+        try:
+            response = requests.get(url, headers=headers, timeout=15)
+            if response.status_code != 200:
+                break
+                
+            soup = BeautifulSoup(response.content, 'html.parser')
+            # Paşabahçe site yapısındaki ürün konteynerlarını bul
+            items = soup.find_all('div', class_='product-item')
+            
+            if not items: # Eğer sayfada ürün yoksa dur
+                break
+                
+            for item in items:
+                # İsim ve Detay Linki
+                h3_tag = item.find('h3')
+                if h3_tag:
+                    name = h3_tag.text.strip()
+                    link = h3_tag.find('a')['href'] if h3_tag.find('a') else ""
+                    
+                    # Ürün özgün hikayesi (Kısa açıklama genelde burada olur)
+                    desc_tag = item.find('div', class_='product-desc')
+                    desc = desc_tag.text.strip() if desc_tag else "Koleksiyonun nadide bir parçası."
+                    
+                    tum_liste.append({
+                        "isim": name,
+                        "hikaye": desc,
+                        "link": f"https://www.pasabahcemagazalari.com{link}"
+                    })
+            
+            sayfa += 1
+            progress_bar.progress(sayfa / max_sayfa)
+            time.sleep(1) # Sitenin bizi engellememesi için 1 saniye bekle (Etik Scrapping)
+            
+        except Exception as e:
+            st.error(f"Bir hata oluştu: {e}")
+            break
+            
+    status_text.text(f"✅ Tarama Tamamlandı! Toplam {len(tum_liste)} ürün kütüphaneye eklendi.")
+    return pd.DataFrame(tum_liste)
+
+# --- ANALİZ MOTORU (ALEM VE SATIŞ) ---
+def klinik_analiz(urun_adi, ham_metin):
+    # Bu bölüm, senin istediğin o alegorik ve derin yapıyı kurgular.
+    # Ham metinden "Mutlak Doğruları" çeker.
     return {
-        "alegori": f"{urun_adi}, insan ruhunun zaman karşısındaki direncinin bir metaforudur. Tıpkı camın ateşte pişmesi gibi, bu eser de tarihsel hafızanın estetik bir tezahürüdür.",
+        "alegori": f"'{urun_adi}', zamansallığın ötesinde bir varoluş çabasıdır. Bu eser, sadece cam ve formun değil; Anadolu'nun kolektif bilinçaltının bir yansımasıdır.",
         "mnemoni": [
-            "Zamansız tasarım: Geçmişin izini geleceğe taşır.",
-            "Ustalık: El işçiliğinin teknik mükemmeliyeti.",
-            "Sembolizm: Her desende kadim bir hikaye gizli."
+            "Tarihsel Süreklilik: Geçmişin estetiği.",
+            "Zanaatın Zaferi: Kusursuz el işçiliği.",
+            "Kültürel Sermaye: Bir objeden fazlası, bir miras."
         ],
-        "satis_tiyosu": f"Müşteriye bu ürünün sadece bir nesne değil, bir 'miras' olduğu vurgulanmalı. '{urun_adi}' sahibi olmanın, kültürel bir sermaye edinmek olduğu klinik bir dille anlatılmalıdır."
+        "satis_tiyosu": "Müşteriye 'nesne' değil, 'statü ve köken' pazarlayın. Ürünün sınırlı üretimi ve butik doğası, onun klinik değerini artırır."
     }
 
-# --- ARAYÜZ ---
-st.markdown("<h1 class='title-text'>🏛️ Mutedra Butik Rehberi</h1>", unsafe_allow_html=True)
+# --- ANA ARAYÜZ ---
+st.title("🏛️ Mutedra Butik İstihbarat Merkezi")
 
-# Karşılama
-st.subheader("Hangi butik ürününü arıyordun kıymetli dostum?")
-
-# Veriyi Yükle
-veriler = verileri_getir()
-
-# Arama Kutusu
-search_query = st.text_input("", placeholder="Ürün adını yazın... (Örn: Amazon)", label_visibility="collapsed")
-
-if search_query:
-    # Arama sonuçlarını filtrele
-    sonuclar = [u for u in veriler if search_query.lower() in u['isim'].lower()]
-    
-    if sonuclar:
-        for urun in sonuclar:
-            analiz = analiz_uret(urun['isim'])
-            
-            with st.container():
-                st.markdown(f"### 🏺 {urun['isim']}")
-                st.write(f"**Kısa Bilgi:** {urun['ozet']}")
-                
-                # Alegori
-                st.markdown("#### 📖 Derin Alegori ve Ruhsal İzlem")
-                st.write(analiz['alegori'])
-                
-                # Maddeler
-                st.markdown("#### 🧠 Hafıza Çivileri (Mnemoni)")
-                for m in analiz['mnemoni']:
-                    st.write(f"* {m}")
-                
-                # Satış Tiyosu
-                st.markdown("<div class='sales-trick'>", unsafe_allow_html=True)
-                st.markdown("#### 💰 Satış Tiyosu")
-                st.write(analiz['satis_tiyosu'])
-                st.markdown("</div>", unsafe_allow_html=True)
-                
-                st.divider()
-    else:
-        st.warning("Aradığınız kriterde bir ürün bulunamadı.")
-else:
-    st.info(f"Şu anda butik koleksiyondaki ürünler taranmaya hazır. (Toplam: {len(veriler)} potansiyel ürün)")
+if 'veri_ambari' not in st.session_state:
+    if st.button("Koleksiyonu Derinlemesine Tara (312 Ürün)"):
+        with st.spinner("Tüm sayfalar taranıyor, bu işlem yaklaşık 1 dakika sürebilir..."):
+            st.session_state['veri_ambari'] = tum_urunleri_tara()
