@@ -1,328 +1,1267 @@
-import streamlit as st
-import json
-import time
-import random
-
-# --- 1. YAPILANDIRMA ---
-st.set_page_config(
-    page_title="Butik Sihirbazı | Alegorik Ürün İstihbaratı",
-    page_icon="🔮",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# --- 2. ESTETİK OTORİTE (PREMIUM CSS) ---
-st.markdown("""
-    <style>
-    /* 1. GENEL ZEMİN */
-    .stApp {
-        background-color: #fbfbfd;
-        color: #1d1d1f;
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    /* 2. SOL MENÜ */
-    section[data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid #d2d2d7;
-    }
-    
-    section[data-testid="stSidebar"] h1, 
-    section[data-testid="stSidebar"] h2, 
-    section[data-testid="stSidebar"] h3 {
-        color: #1d1d1f !important;
-    }
-
-    /* 3. ÜRÜN KARTLARI */
-    div[data-testid="column"] {
-        background-color: #ffffff;
-        border-radius: 18px;
-        padding: 20px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f0f0f0;
-        transition: all 0.3s ease;
-        text-align: center;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-    
-    div[data-testid="column"]:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border-color: #d4af37;
-    }
-
-    /* 4. RESİMLER */
-    div[data-testid="stImage"] {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 220px;
-        margin-bottom: 15px;
-    }
-    
-    div[data-testid="stImage"] img {
-        max-height: 210px !important;
-        object-fit: contain !important;
-        mix-blend-mode: multiply;
-    }
-
-    /* 5. METİNLER */
-    .product-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: #1d1d1f;
-        margin-bottom: 10px;
-        min-height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1.3;
-    }
-
-    /* 6. ARAMA KUTUSU */
-    .stTextInput > div > div > input {
-        background-color: #ffffff;
-        color: #1d1d1f;
-        border: 1px solid #d2d2d7;
-        border-radius: 12px;
-        padding: 12px 15px;
-        font-size: 16px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-    }
-    .stTextInput > div > div > input:focus {
-        border-color: #0071e3;
-        box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
-    }
-
-    /* 7. BUTONLAR */
-    .stButton > button {
-        background-color: #f5f5f7;
-        color: #1d1d1f;
-        border: none;
-        border-radius: 20px;
-        padding: 8px 20px;
-        font-weight: 500;
-        width: 100%;
-        transition: all 0.2s;
-    }
-    .stButton > button:hover {
-        background-color: #1d1d1f;
-        color: #ffffff;
-    }
-
-    /* 8. DETAY ALANLARI */
-    .story-box {
-        background-color: #ffffff;
-        border-left: 4px solid #d4af37;
-        padding: 20px;
-        border-radius: 0 12px 12px 0;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        color: #424245;
-        font-style: italic;
-    }
-    
-    .allegory-section {
-        background-color: #f5f5f7;
-        padding: 25px;
-        border-radius: 18px;
-        margin-top: 20px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- 3. VERİ MOTORU ---
-@st.cache_data
-def load_data():
-    try:
-        with open('urunler.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            for i, item in enumerate(data):
-                item['id'] = i
-            return data
-    except FileNotFoundError:
-        return []
-
-products = load_data()
-
-# --- STATE YÖNETİMİ ---
-if 'random_products' not in st.session_state:
-    if products:
-        sample_size = min(len(products), 8)
-        st.session_state.random_products = random.sample(products, sample_size)
-    else:
-        st.session_state.random_products = []
-
-if 'selected_product' not in st.session_state:
-    st.session_state.selected_product = None
-
-def select_product(product):
-    st.session_state.selected_product = product
-
-# --- 4. SOL MENÜ (BUTİK SİHİRBAZI) ---
-with st.sidebar:
-    # Başlık
-    st.markdown("<h2 style='text-align: center; color: #1d1d1f; margin-bottom: 5px;'>BUTİK SİHİRBAZI</h2>", unsafe_allow_html=True)
-    
-    # Özlü Söz
-    st.markdown("""
-        <div style='text-align: center; font-style: italic; color: #86868b; font-size: 14px; margin-bottom: 20px;'>
-        “Zarafet göze batmak değil,<br>akılda kalmaktır.”
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Navigasyon
-    menu = st.radio("Menü", ["🔍 Koleksiyon Ara", "📢 Duyurular", "📞 İletişim"])
-    
-    st.markdown("---")
-    
-    # Menü İçerikleri
-    if menu == "📞 İletişim":
-        st.info("**Sistem Sorunları ve Geri Bildirim:**\n\n**Palladium Paşabahçe Mağazası**\n\n📩 isdogan@sisecam.com\n📩 palladiummgz@sisecam.com")
-    
-    elif menu == "📢 Duyurular":
-        st.warning("""
-        **BUTİK SİHİRBAZI HAKKINDA**
-        
-        Bu sistem, **Palladium ve Hilltown Paşabahçe Mağazaları** tarafından geliştirilmiştir. Tüm Paşabahçe mağazalarındaki çalışma arkadaşlarımızı desteklemek üzere, tüm fonksiyonları ile kullanıma hazırdır.
-        
-        ---
-        **⚠️ Dipnot:** Sistemi kendi imkanlarımız ile geliştirdiğimizden, yoğunluk sebebiyle aksaklıklar yaşanabilir. Geri bildirimleriniz ve fikirleriniz bizim için çok değerlidir.
-        """)
-    
-    # --- EMEĞİ GEÇENLER (KİMLİK KARTI) ---
-    # İşte burası düzeltildi: HTML kodunu st.markdown içine aldık.
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("""
-    <div style='background-color: #f5f5f7; padding: 20px; border-radius: 12px; border: 1px solid #d2d2d7; text-align: center; color: #1d1d1f; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
-        <div style='font-size: 15px; font-weight: bold; margin-bottom: 5px; color: #000;'>Designed by Umut Doğan</div>
-        <div style='font-size: 12px; color: #555; margin-bottom: 15px;'>(Tasarım & Kodlama)</div>
-        
-        <div style='border-top: 1px solid #d2d2d7; margin: 10px 20px;'></div>
-        
-        <div style='font-size: 13px; font-weight: 700; color: #555; margin-bottom: 8px; letter-spacing: 1px;'>EMEĞİ GEÇENLER</div>
-        <div style='font-size: 14px; font-weight: 500; line-height: 1.8; color: #333;'>
-            Adem Keleş<br>
-            Fatih Demir<br>
-            Nuriye Kulaksız
-        </div>
-        
-        <div style='border-top: 1px solid #d2d2d7; margin: 15px 20px;'></div>
-        
-        <div style='font-size: 12px; font-weight: 700; color: #d4af37;'>
-            Palladium ve Hilltown<br>Mağazaları Ürünüdür.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-# --- 5. ANA EKRAN MANTIĞI ---
-
-# --- MOD 1: VİTRİN ---
-if st.session_state.selected_product is None:
-    
-    c1, c2, c3 = st.columns([1, 6, 1])
-    with c2:
-        st.markdown("<h1 style='text-align: center; font-size: 40px;'>Koleksiyonu Keşfet.</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #86868b; font-size: 18px;'>Her hikaye dinlemeye değerdir.</p>", unsafe_allow_html=True)
-        search_query = st.text_input("", placeholder="🔍 Ürün, hikaye veya duygu arayın...", label_visibility="collapsed", key="main_search")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    if search_query:
-        display_items = [p for p in products if search_query.lower() in p['name'].lower() or search_query.lower() in p.get('short_story', '').lower()]
-        st.markdown(f"### 📂 Arama Sonuçları ({len(display_items)})")
-    else:
-        display_items = st.session_state.random_products
-        st.markdown("### 🍀 Şanslı Öneriler")
-
-    cols = st.columns(4)
-    
-    for idx, p in enumerate(display_items):
-        with cols[idx % 4]:
-            # --- KART ---
-            if p.get('image'):
-                st.image(p['image'], use_container_width=True)
-            else:
-                st.markdown("<div style='height:200px; display:flex; align-items:center; justify-content:center; color:#ccc;'>Görsel Yok</div>", unsafe_allow_html=True)
-            
-            st.markdown(f"<div class='product-title'>{p['name']}</div>", unsafe_allow_html=True)
-            
-            if st.button("İncele", key=f"btn_{p['id']}"):
-                select_product(p)
-                st.rerun()
-            # --- KART SONU ---
-
-# --- MOD 2: DETAY SAYFASI ---
-else:
-    p = st.session_state.selected_product
-    
-    if st.button("← Koleksiyona Dön", use_container_width=False):
-        st.session_state.selected_product = None
-        st.rerun()
-        
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    col_left, col_right = st.columns([1, 1.2])
-
-    with col_left:
-        st.markdown("""
-            <div style="background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
-        """, unsafe_allow_html=True)
-        st.image(p['image'], use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-        if p.get('link'):
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.link_button("🌐 Resmi Sitede Görüntüle", p['link'], use_container_width=True)
-
-    with col_right:
-        st.markdown(f"<h1 style='margin-bottom: 0;'>{p['name']}</h1>", unsafe_allow_html=True)
-        
-        fiyat = p.get('price', '')
-        if fiyat:
-            st.markdown(f"<h3 style='color: #86868b; margin-top: 0;'>{fiyat}</h3>", unsafe_allow_html=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        hikaye = p.get('short_story', p.get('raw_story', '...'))
-        st.markdown(f"""
-            <div class="story-box">
-                <span style="font-size: 20px;">❝</span><br>
-                {hikaye}
-            </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        with st.spinner('Alegorik katmanlar işleniyor...'):
-            time.sleep(0.3)
-            
-        alegori = p.get('allegory', "Derin anlam yükleniyor...")
-        
-        st.markdown(f"""
-            <div class="allegory-section">
-                <h4 style="color: #d4af37; margin-top:0;">👁️ DERİN ANLAM (ALEGORİ)</h4>
-                <p style="color: #1d1d1f; font-size: 15px; line-height: 1.6;">{alegori}</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        tips = p.get('sales_tips', ["Özel bir parça.", "Hikayesini anlatın."])
-        
-        if isinstance(tips, str): tips = [tips]
-        
-        with c1:
-            st.success(f"**Hedef Kitle:** {tips[0]}")
-        with c2:
-            if len(tips) > 1:
-                st.info(f"**Strateji:** {tips[1]}")
-            else:
-                st.info("**Strateji:** Bağ kurun.")
-
-    # Footer (Sadece detay sayfasında)
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
-    st.markdown("<div style='text-align: center; color: #86868b; font-size: 13px;'>Tutku ile yapıldı ❤️</div>", unsafe_allow_html=True)
+[
+  {
+    "name": "Atatürk Kurucu Felsefenin Evrimi-Kitap",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/20/137828/2aeaba53-bd8d-42c8-b79c-7e47281c6189_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/ataturk-kurucu-felsefenin-evrimi-kitap-p-000000000010026834/",
+    "short_story": "Bir ulusun küllerinden doğuşunun fikri haritası. Cumhuriyetin ardındaki entelektüel birikimin ve vizyonun belgesi.",
+    "sales_tips": [
+      "Tarih meraklıları ve koleksiyonerler için prestijli bir hediye.",
+      "Kurumsal ofislerde 'vizyonerlik' mesajı verir."
+    ],
+    "allegory": "Düşüncenin maddeye, fikrin devlete dönüşümü."
+  },
+  {
+    "name": "İstiklal Yazı Seti",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/132084/e424c914-6286-4e98-a8bf-84c123a03420_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/istiklal-yazi-seti-p-000000000010027060/",
+    "short_story": "Bağımsızlığın imzası. Cumhuriyetin kuruluş iradesini masanızda yaşatan, kararlılığı ve otoriteyi simgeleyen özel tasarım.",
+    "sales_tips": [
+      "İmza yetkisi olan yöneticiler için güç sembolüdür.",
+      "Yeni iş tebriği için 'kalıcı başarı' dileğiyle verilir."
+    ],
+    "allegory": "İradenin kalıcı izi, sözün senete dönüşmesi."
+  },
+  {
+    "name": "Nutuk-Kitap",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/20/137830/e1fb191c-626c-4917-8060-89ebe5944ce8_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/nutuk-kitap-p-000000000010026832/",
+    "short_story": "Bir liderin halkına hesap verişi. Geçmişten geleceğe uzanan, eskimeyen bir yol haritasının en saf hali.",
+    "sales_tips": [
+      "Manevi değeri en yüksek, nesilden nesile geçecek bir mirastır.",
+      "Her Türk evinin başköşesine layıktır."
+    ],
+    "allegory": "Tarihin hafızası, geleceğin pusulası."
+  },
+  {
+    "name": "Alacahöyük Güneş Kursu Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/05/133674/c4afbf49-c9a0-4cbf-9a15-0297ab7b9c68_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/alacahoyuk-gunes-kursu-kase-p-000000000010026383/",
+    "short_story": "Anadolu'nun en kadim inanç sembolü. Hatti uygarlığının evreni ve güneşi kutsadığı ritüel formların cama yansıması.",
+    "sales_tips": [
+      "Hitit ve Anadolu tarihi tutkunları için eşsizdir.",
+      "Evrenin ve bereketin simgesi olarak spiritüel bir değeri vardır."
+    ],
+    "allegory": "Karanlığı delen ışık, yaşamın kaynağı."
+  },
+  {
+    "name": "Mürşit Kitap Obje",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/132251/b931de87-3435-4c51-b25a-e8770c797bad_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/mursit-kitap-obje-p-000000000010027207/",
+    "short_story": "'En hakiki mürşit ilimdir' sözünün kristalize olmuş hali. Aklın, bilimin ve Cumhuriyet aydınlanmasının somutlaşmış manifestosu.",
+    "sales_tips": [
+      "Akademisyenler, öğretmenler ve öğrenciler için en anlamlı hediye.",
+      "Bilginin ışığını ve rasyonel düşünceyi simgeler."
+    ],
+    "allegory": "Cehalet karanlığına karşı aklın sönmeyen meşalesi."
+  },
+  {
+    "name": "Karadeniz Vapuru Gondol",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131914/3224a30f-969a-42dd-8b6f-0cee72e79b36_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/karadeniz-vapuru-gondol-p-000000000010027376/",
+    "short_story": "1926'da genç Cumhuriyetin ürünlerini Avrupa'ya tanıtan efsanevi 'Yüzen Sergi' vapuru. Modern Türkiye'nin vizyonunu okyanuslara taşıyan gemi.",
+    "sales_tips": [
+      "Denizcilik tutkunları ve Cumhuriyet tarihi meraklılarına hitap eder.",
+      "Vizyonerlik ve dünyaya açılma temalı bir hediyedir."
+    ],
+    "allegory": "Ufkun ötesine taşınan medeniyet mesajı."
+  },
+  {
+    "name": "Anıtkabir - Bir Veda Bir Başlangıç-Kitap",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/20/137831/60cbfb73-a09c-4125-bf3d-d82237605a05_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/anitkabir-bir-veda-bir-baslangic-kitap-p-000000000010026833/",
+    "short_story": "Hüzün ve gururun anıtı. Ebedi istirahatgahın mimari ve manevi detaylarını barındıran, saygı duruşu niteliğinde bir eser.",
+    "sales_tips": [
+      "Resmi makam odaları ve kütüphaneler için ağırlığı olan bir parça.",
+      "Vefa ve minnet duygularını ifade eder."
+    ],
+    "allegory": "Ölümsüzlüğün taşa ve cama kazınmış hali."
+  },
+  {
+    "name": "Alacahöyük Güneş Kursu Şişe",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/132391/dc9156b2-c44d-4ff0-ae0a-d2b6fcb5ec2f_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/alacahoyuk-gunes-kursu-sise-p-000000000010026382/",
+    "short_story": "Tunç Çağı krallarının mezarlarından çıkan güneş kurslarının şişe formunda yeniden yorumu. Hitit öncesi Anadolu'nun mistik gücü.",
+    "sales_tips": [
+      "Etnik ve tarihi dekorasyon sevenler için ideal.",
+      "Anadolu'nun köklerine yapılan bir yolculuk."
+    ],
+    "allegory": "Geçmişin kutsal ritüellerinin bugüne taşınması."
+  },
+  {
+    "name": "Sır Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/133743/9f4fa4d3-239a-45c0-bfdc-f6a8caaf198c_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/sir-kase-p-000000000010025998/",
+    "short_story": "Baba Nakkaş döneminin Rumi motifleriyle bezeli, tezhip sanatının camdaki aksi. Bakmakla görülmeyen, sadece ehlinin anladığı derinlik.",
+    "sales_tips": [
+      "15. yüzyıl saray nakkaşhanesi estetiğini sevenlere.",
+      "İç içe geçen sonsuz desenler, sürekliliği simgeler."
+    ],
+    "allegory": "Görünenin ardındaki gizli hakikat (Sır)."
+  },
+  {
+    "name": "Saray Çinili Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/132629/67689c75-0967-4cab-99f2-26d560cf746c_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/saray-cinili-vazo-p-000000000010025876/",
+    "short_story": "Topkapı Sarayı Harem dairesinin duvarlarını süsleyen İznik çinilerinin camda yeniden hayat bulması. Osmanlı estetiğinin zirvesi.",
+    "sales_tips": [
+      "Klasik dekorasyonun vazgeçilmez parçası.",
+      "Mavinin ve tarihin huzur veren uyumunu arayanlara."
+    ],
+    "allegory": "Duvarlardan taşan, zamana direnen güzellik."
+  },
+  {
+    "name": "Saray Çinili Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/133609/a0b64046-824b-425e-86fd-b9427d8629e7_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/saray-cinili-kase-p-000000000010026008/",
+    "short_story": "Ateşle toprağın aşkı İznik çinisinin, cam ile buluşması. Karaağalar Taşlığı'nın desenlerini sofralara taşıyan asil bir form.",
+    "sales_tips": [
+      "Set yapmak isteyenler için Vazo ile mükemmel uyum sağlar.",
+      "Zengin ve gösterişli sunumlar için ideal."
+    ],
+    "allegory": "Toprağın hafızasının camda şeffaflaşması."
+  },
+  {
+    "name": "Saz Yolu Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/133349/baa0fdf7-2740-40d7-baea-c6bf26e185a1_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/saz-yolu-vazo-p-000000000010026026/",
+    "short_story": "Kanuni Sultan Süleyman'ın kaftanındaki zarafet. Kıvrımlı yapraklar, hançer gibi sivri uçlar ve efsanevi çiçeklerle bezeli 'Saz Yolu' üslubu.",
+    "sales_tips": [
+      "İktidar ve zarafetin dengesini simgeler.",
+      "Osmanlı tekstil sanatına ilgi duyanlar için nadide bir parça."
+    ],
+    "allegory": "Hayatın kıvrımlı, dikenli ama büyüleyici yolculuğu."
+  },
+  {
+    "name": "\"Ey Türk Gençliği\" Hitap Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/132608/6de83414-8598-4b84-b660-b3562cf69b24_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/ey-turk-gencligi-hitap-vazo-p-000000000010025793/",
+    "short_story": "Nutuk'un son ve en güçlü seslenişi. Gençliğe emanet edilen Cumhuriyetin, kağıt balyası formunda camda ölümsüzleşmesi.",
+    "sales_tips": [
+      "Mezuniyet hediyesi veya yeni kariyer başlangıcı için mükemmel.",
+      "Geleceğe bırakılacak bir görev ve miras niteliğinde."
+    ],
+    "allegory": "Nesilden nesile aktarılan kutsal emanet."
+  },
+  {
+    "name": "Şifalı Tablo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/133461/c7e17a71-d159-4394-82c1-d1959f1308b9_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/sifali-tablo-p-000000000010025780/",
+    "short_story": "'Ya Şafi' isminin 9 kere tekrarlandığı, manevi huzur, sağlık ve şifa niyetiyle tasarlanmış, mine ve altınla bezeli tılsımlı eser.",
+    "sales_tips": [
+      "Hasta ziyareti, yeni ev veya zor zamanlar geçirenler için manevi destek.",
+      "Bulunduğu ortamın enerjisini iyileştirmek için kullanılır."
+    ],
+    "allegory": "Ruhun ve bedenin arınma arayışı."
+  },
+  {
+    "name": "Ehl-i Nazar Tablo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/132517/19ddf3da-d983-40f2-a866-331a2a8ac4ef_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/ehl-i-nazar-tablo-p-000000000010025791/",
+    "short_story": "Kalem Suresi'nin nazar ayetleriyle (51-52) donatılmış güçlü bir manevi kalkan. Kem gözleri ve negatif enerjiyi mekandan uzak tutan zarif bir koruyucu.",
+    "sales_tips": [
+      "İş yeri açılışları ve ev hediyeleri için en çok tercih edilen parça.",
+      "Geleneksel inançla estetiği birleştirir."
+    ],
+    "allegory": "Görünmeyen tehlikelere karşı görünür bir kalkan."
+  },
+  {
+    "name": "35 Besmele Ajurlu Tablo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/133828/a22af89e-6c2b-4941-84d4-26f2cc0232fb_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/35-besmele-ajurlu-tablo-p-000000000010025792/",
+    "short_story": "Her işin başı olan Besmele'nin 35 kez tekrarlandığı bereket döngüsü. Ajur (delik işi) tekniğiyle ışığı ve duayı iç içe geçiren bir tasarım.",
+    "sales_tips": [
+      "Bolluk ve bereket getirmesi niyetiyle alınır.",
+      "Sülüs hat sanatının ritmik tekrarıyla görsel bir şölen sunar."
+    ],
+    "allegory": "Başlangıçların kutsallığı ve sürekliliği."
+  },
+  {
+    "name": "Şenlik Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/131866/64c6ff2d-2175-43bc-85f9-c2da0a2afa8f_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/senlik-kase-p-000000000010025615/",
+    "short_story": "Osmanlı minyatürlerindeki düğün, şenlik ve ziyafet coşkusunun cama yansıması. Surname-i Hümayun'un neşesini ve ihtişamını bugüne taşır.",
+    "sales_tips": [
+      "Kutlama, düğün veya mutlu bir olayı taçlandırmak için hediye edilir.",
+      "Hayatın neşeli anlarını hatırlatan pozitif bir objedir."
+    ],
+    "allegory": "Hayatın coşkusu ve paylaşılan mutluluk."
+  },
+  {
+    "name": "Bilge Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/133818/4127c6a0-2180-441b-aee1-9f8d7e353f91_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/bilge-vazo-p-000000000010025618/",
+    "short_story": "Ayasofya'nın (Kutsal Bilgelik) mermer işlemelerinden, nişlerinden ve sütunlarından ilham alan, mekana derinlik ve ruh katan bir eser.",
+    "sales_tips": [
+      "İstanbul aşıkları ve mimari tutkunları için özel bir parça.",
+      "Bilgeliği ve köklü duruşu temsil eder."
+    ],
+    "allegory": "Taşın hafızası, bilgeliğin sessiz ve heybetli duruşu."
+  },
+  {
+    "name": "Bilge Şekerlik",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/133471/a7b93e1d-77d4-4549-bbeb-64f78c2569c4_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/bilge-sekerlik-p-000000000010025620/",
+    "short_story": "Ayasofya'nın kutsal bilgeliğini sofralara taşıyan zarif bir form. Mermer süslemelerin camdaki yansımasıyla sunumlarınıza tarih katar.",
+    "sales_tips": [
+      "Misafir ağırlamayı sevenler için sohbet başlatıcı bir parça.",
+      "Bilge Vazo ile takım olarak mükemmel durur."
+    ],
+    "allegory": "Tatlı anların içindeki kadim bilgelik."
+  },
+  {
+    "name": "Papatya Çay Fincanı Seti 2'li",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131725/0b288759-2485-4357-bab8-6dfd1a6c584e_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/papatya-cay-fincani-seti-2-li-p-000000000010025559/",
+    "short_story": "Osmanlı zarafetinin modern sofralara dokunuşu. Altın varak detaylarla bezenmiş, çay saatini bir ritüele dönüştüren pembe rüya.",
+    "sales_tips": [
+      "Sunuma önem verenler ve çay tutkunları için.",
+      "Günlük lüks arayanlara 'kendini şımartma' ürünü."
+    ],
+    "allegory": "Küçük anların büyük zarafeti."
+  },
+  {
+    "name": "Maya Bombede Gül Çay Fincanı Seti",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/133460/5f85d4f3-475d-47ab-a8fc-955318e0c789_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/maya-bombede-gul-cay-fincani-seti-p-000000000010025558/",
+    "short_story": "700 yıllık Osmanlı estetiğinin yeşil ve altınla dansı. İçindeki altın varak detaylarla her yudumda sürpriz yapan bir sanat eseri.",
+    "sales_tips": [
+      "Klasik ve ihtişamlı sofra düzenini sevenlere.",
+      "Gül motifinin romantizmi ile altının asaleti."
+    ],
+    "allegory": "Gizli güzelliklerin keşfi."
+  },
+  {
+    "name": "Divriği Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/133716/37ec53b7-6f0f-4a08-b615-22fb43540830_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/divrigi-kase-p-000000000010025351/",
+    "short_story": "UNESCO mirası Divriği Ulu Camii'nin 'Taşın Dantel Gibi İşlendiği' Taç Kapısı'ndan ilham aldı. Selçuklu taş işçiliğinin ve 'Denge Sütunu'nun camdaki aksi.",
+    "sales_tips": [
+      "Mimari ve sanat tarihi sevenler için koleksiyonluk parça.",
+      "Anadolu'nun taş ustalığına ve dengesine bir övgü."
+    ],
+    "allegory": "Taşın sabrı, camın kırılganlığı ve evrenin dengesi."
+  },
+  {
+    "name": "Asur Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131722/0ef040f6-cd46-47cf-a63c-851a1479b6c4_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/asur-vazo-p-000000000010025508/",
+    "short_story": "Mezopotamya'nın savaşçı kralları Asurluların duvar kabartmalarından bir sahne. Lübnan sedir ağaçlarının taşınmasını anlatan, inşayı ve gücü simgeleyen tarihi belge.",
+    "sales_tips": [
+      "Güç, iktidar ve inşa etme sembolü arayanlara.",
+      "Tarihin ilk imparatorluklarına ve Louvre Müzesi eserlerine ilgi duyanlara."
+    ],
+    "allegory": "Medeniyetin inşası ve doğaya hükmetme çabası."
+  },
+  {
+    "name": "Ayasofya Kubbe Şekerlik",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/08/11/133069/065eb496-e817-4945-88c5-c0ae2848af09_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/ayasofya-kubbe-sekerlik-p-000000000010025349/",
+    "short_story": "Justinianus'un rüyası, İstanbul'un tacı. Ayasofya'nın devasa kubbesinin formunu ve bezemelerini avuçlarınızın içine sığdıran kutsal bir estetik.",
+    "sales_tips": [
+      "Maneviyatı ve tarihi birleştiren zarif bir hediye.",
+      "İstanbul'un ruhunu evinde hissetmek isteyenlere."
+    ],
+    "allegory": "Gökyüzünün yeryüzüne inmesi."
+  },
+  {
+    "name": "Korur Tablo 40 cm",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131984/b0d1a2f1-f2f1-4699-b30f-47e6819d6e16_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/korur-tablo-40-cm-p-000000000010025216/",
+    "short_story": "Ayet el-Kürsi'nin koruyucu gücü. 'O'nun kürsüsü gökleri ve yeri içine almıştır' ayetinin celi sülüs hatla cama işlenmiş, evi bekleyen manevi muhafız.",
+    "sales_tips": [
+      "Yeni evlenenlere veya ev alanlara 'huzur ve koruma' için verilir.",
+      "Duvarlarda sadece dekor değil, manevi bir sığınak arayanlara."
+    ],
+    "allegory": "Mutlak gücün himayesine sığınış."
+  },
+  {
+    "name": "Halikarnas Mozolesi Cam Kutu",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131391/9095b5ff-34c6-4d33-ae5f-55a1f20e011b_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/halikarnas-mozolesi-cam-kutu-p-000000000010023934/",
+    "short_story": "Dünyanın Yedi Harikası'ndan biri olan ve bugün yerinde yeller esen Halikarnas Mozolesi'nin anısına. Kayıp bir şaheserin camda yeniden inşası.",
+    "sales_tips": [
+      "Bodrum ve Ege tarihi sevenlere, British Museum'daki parçaları bilenlere.",
+      "Yitik mirasa bir saygı duruşu."
+    ],
+    "allegory": "Maddenin yok oluşu, hafızanın kalıcılığı."
+  },
+  {
+    "name": "Aziz Teber",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131739/ee4262b6-db3c-4d73-9cf5-2dce5814f062_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/aziz-teber-p-000000000010023426/",
+    "short_story": "Dervişin asası, savaşçının silahı. Üzerinde 'El-Aziz' (İzzet sahibi, Mağlup edilemeyen) yazan, güç ve maneviyatı birleştiren sembolik bir obje.",
+    "sales_tips": [
+      "Ofis masası için güç ve saygınlık sembolü.",
+      "Koruyucu, heybetli ve manevi derinliği olan bir hediye."
+    ],
+    "allegory": "Maddi güç ile manevi kudretin dengesi."
+  },
+  {
+    "name": "Cihan Barutluk Obje",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130233/8a26d9b6-30a3-40b2-ad1b-e0d894493011_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/cihan-barutluk-obje-p-000000000010019804/",
+    "short_story": "Savaş alanının hayati parçası barutluğun sanat eserine dönüşümü. 16. yüzyıl Osmanlı 'saz yolu' üslubuyla bezeli, ejderha ve zümrüdü anka kuşlarının dansı.",
+    "sales_tips": [
+      "Askeri tarih ve antika silah meraklıları için.",
+      "Yırtıcı ve efsanevi motifleriyle maskülen bir hediye."
+    ],
+    "allegory": "Yıkıcı gücün estetik bir forma bürünmesi."
+  },
+  {
+    "name": "Devler Savaşı Obje",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131056/1d1257a3-39a3-4652-a676-58e0d7ed103d_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/devler-savasi-obje-p-000000000010019806/",
+    "short_story": "Bergama Zeus Sunağı'ndaki epik savaşın (Gigantomahia) tasviri. Zeus'un devlere karşı kazandığı zaferin, aklın kaosa üstünlüğünün simgesi.",
+    "sales_tips": [
+      "Mitoloji ve sanat tarihi meraklıları için eşsiz.",
+      "Berlin'e kaçırılan mirasımıza bir atıf ve hatırlatma."
+    ],
+    "allegory": "Düzenin kaosa, aydınlığın karanlığa zaferi."
+  },
+  {
+    "name": "Birgi Mumluk",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130512/4ae1cc98-edb9-472f-ae97-3fc943c0357a_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/birgi-mumluk-p-000000000010019794/",
+    "short_story": "Aydınoğulları Beyliği'nin ahşap işçiliği şaheseri Birgi Ulu Camii minberinden detaylar. Ceviz ağacının sıcak geometrisini camın ışıltısıyla buluşturur.",
+    "sales_tips": [
+      "Ege bölgesi tarihi sevenlere ve ahşap sanatına ilgi duyanlara.",
+      "Ortama sıcak ve mistik bir atmosfer katar."
+    ],
+    "allegory": "Ustalığın zamana meydan okuyuşu."
+  },
+  {
+    "name": "Farisi Gümüş Maşrapa",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130955/0e73e0ee-d25a-4f14-9805-f4f6e986a5d1_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/farisi-gumus-masrapa-p-000000000010019776/",
+    "short_story": "Genç Osman'ın (II. Osman) tuğrasını taşıyan, 17. yüzyıl gümüş işçiliğinin zarafeti. Yurtdışından geri alınan bir mirasın camdaki yansıması.",
+    "sales_tips": [
+      "Osmanlı gümüş sanatını sevenlere.",
+      "Tarihi bir objenin replikasını evinde isteyenlere."
+    ],
+    "allegory": "Geçmişin ışıltısının bugüne taşınması."
+  },
+  {
+    "name": "Yortan Vazo Smoke",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131030/de50e52e-fbdc-49d9-8279-8a4f91b0b9cd_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/yortan-vazo-smoke-p-000000000010019777/",
+    "short_story": "5000 yıl öncesinin modernizmi. Erken Tunç Çağı'na ait Yortan kaplarının yalın, geometrik ve siyah formunun bugüne uyarlanması.",
+    "sales_tips": [
+      "Minimalist ve modern dekorasyon sevenlere.",
+      "Anadolu'nun en eski ve en saf tasarım formlarından biri."
+    ],
+    "allegory": "Sadelikteki asaletin binlerce yıllık kanıtı."
+  },
+  {
+    "name": "Milet Testi",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130251/0da38ccd-fad2-4cc9-8fc2-6cbf465d785e_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/milet-testi-p-000000000010019781/",
+    "short_story": "Felsefenin doğduğu toprakların, Milet'in antik mirası. Yonca ağızlı testinin (Oenokhoe) üzerindeki griffon ve ceylanlarla doğanın döngüsü.",
+    "sales_tips": [
+      "Ege ve antik çağ tutkunlarına.",
+      "Bilimin ve felsefenin beşiğine bir saygı duruşu."
+    ],
+    "allegory": "Doğanın ve medeniyetin iç içe geçişi."
+  },
+  {
+    "name": "İstanbul'dan İşlemeli Şişe",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/08/11/129979/cd4ec3c7-a3e3-44df-b0ff-19ad305e63f5_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/istanbul-dan-islemeli-sise-p-000000000010019784/",
+    "short_story": "Osmanlı'nın 'Tombak' sanatının ihtişamı. Altın ve civanın ateşle dansından doğan, saray gülabdanlarından ilham alan bir zarafet.",
+    "sales_tips": [
+      "Altın ve işlemeli obje sevenler için gösterişli bir parça.",
+      "Geleneksel Türk el sanatlarının en nadide tekniği."
+    ],
+    "allegory": "Sıradan bakırın altına dönüşmesi (Simya)."
+  },
+  {
+    "name": "Nuh'un Gondolu",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/138303/88f89d91-1572-4e94-99a2-36844c4a05c0_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/nuh-un-gondolu-p-000000000010019757/",
+    "short_story": "İnsanlığın ikinci doğuşu, Nuh'un Gemisi. Anadolu'nun soyu tükenmiş hayvanlarının (Aslan, Pars, Fil) betimlemeleriyle bir 'hafıza gemisi'.",
+    "sales_tips": [
+      "Umut, kurtuluş ve yeniden başlangıç sembolü.",
+      "Doğa ve hayvanseverler için anlamlı bir hediye."
+    ],
+    "allegory": "Felaketin ortasında yaşamı ve umudu taşıyan sığınak."
+  },
+  {
+    "name": "Patara Deniz Feneri",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130497/b083f97c-1a56-4d98-ac51-12cc9afaddae_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/patara-deniz-feneri-p-000000000010019595/",
+    "short_story": "İmparator Neron'un prestij projesi, dünyanın en eski deniz fenerlerinden biri. Likya'nın başkentinden denizcilere yol gösteren antik ışık.",
+    "sales_tips": [
+      "Yol göstericilik, liderlik ve rehberlik sembolü.",
+      "Deniz ve tarih tutkunlarına özel."
+    ],
+    "allegory": "Karanlıkta yolunu kaybedenlere ışık olmak."
+  },
+  {
+    "name": "Safranbolu İbrik",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130948/05b45ce7-bc8b-475f-a843-6e1a815831bf_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/safranbolu-ibrik-p-000000000010019602/",
+    "short_story": "Zamanın durduğu kent Safranbolu. Geleneksel Türk evlerinin ahşap dokusu ve eski kapı kilitlerinin ibrik formunda hayat bulması.",
+    "sales_tips": [
+      "Geleneksel mimari ve nostalji sevenlere.",
+      "Eve bereket ve huzur getirmesi dileğiyle."
+    ],
+    "allegory": "Yuvanın sıcaklığı ve korunaklı yapısı."
+  },
+  {
+    "name": "Ishakpaşa Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131255/6f85bad1-f576-454c-be05-961a425d7840_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/ishakpasa-vazo-p-000000000010019573/",
+    "short_story": "Doğu'nun masal sarayı İshakpaşa. Selçuklu, Osmanlı ve Fars mimarisinin Ağrı Dağı eteklerindeki sentezi. Aslanlı kapının gücü.",
+    "sales_tips": [
+      "Doğu Anadolu'nun mistik havasını sevenlere.",
+      "İhtişamlı ve köklü bir duruş sergiler."
+    ],
+    "allegory": "Farklı kültürlerin tek bir bedende (sarayda) uyumu."
+  },
+  {
+    "name": "Myra Antik Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130946/09a0b646-27e4-4788-8968-1bd829ae7c38_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/myra-antik-vazo-p-000000000010019574/",
+    "short_story": "Likya'nın kaya mezarları ve tiyatro maskları. Ölümle yaşamın, sanatla inancın iç içe geçtiği Myra antik kentinin sessiz tanığı.",
+    "sales_tips": [
+      "Antalya ve Likya tarihi meraklılarına.",
+      "Gizemli ve derinlikli bir dekorasyon objesi."
+    ],
+    "allegory": "Taşa kazınan ölümsüzlük arzusu."
+  },
+  {
+    "name": "Kısmet Sandık",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130927/fefc11da-18e7-4874-a8f8-ff476ad47623_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/kismet-sandik-p-000000000010019550/",
+    "short_story": "Osmanlı'nın mücevher kutusu ve çeyiz geleneği. Sedef, bağa ve fildişi kakma sanatının camdaki zarif yansıması. Sırları saklayan kutu.",
+    "sales_tips": [
+      "Düğün, nişan ve çeyiz hediyesi olarak mükemmel.",
+      "İçine konulanı ve saklananı değerli kılar."
+    ],
+    "allegory": "Gizli hazinelerin ve umutların muhafızı."
+  },
+  {
+    "name": "Eşrefoğlu Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131119/2f23e658-7a62-4dbe-820f-ed1d103e70d6_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/esrefoglu-vazo-p-000000000010019570/",
+    "short_story": "Beyşehir Eşrefoğlu Camii'nin turkuaz çini mozaik mihrabından bir kesit. Ahşap direkli camilerin huzurunu ve Selçuklu geometrisini yansıtır.",
+    "sales_tips": [
+      "Selçuklu sanatı ve turkuaz rengi sevenlere.",
+      "Manevi huzur veren bir tasarım."
+    ],
+    "allegory": "Ahşabın sıcaklığı ile çininin serinliğinin dansı."
+  },
+  {
+    "name": "Gökyüzü Ayna 55 cm",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2024/08/27/130244/77500653-7524-4db4-a35e-dbf31f3105fe_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/gokyuzu-ayna-55-cm-p-000000000010019542/",
+    "short_story": "Bursa Ulu Camii minberindeki kündekari sanatının, evreni ve sonsuzluğu simgeleyen geometrisi. Vakıa Suresi ile bezenmiş bir gök kapısı.",
+    "sales_tips": [
+      "Duvar dekorasyonunda manevi ve estetik bir odak noktası.",
+      "Kainatın düzenini ve sonsuzluğu simgeler."
+    ],
+    "allegory": "Parçaların bütünde kaybolup birliğe (Vahdet) ulaşması."
+  },
+  {
+    "name": "Ferman Kutu",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131126/af625a43-3371-4c38-8501-f1641728115f_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/ferman-kutu-p-000000000010019532/",
+    "short_story": "Padişahın buyruğunu taşıyan, sözün belgesi fermanların muhafazası. 1500'lerin karo desenleriyle bezeli, mahremiyetin ve önemin simgesi.",
+    "sales_tips": [
+      "Önemli belgeleri veya hatıraları saklamak için prestijli bir kutu.",
+      "Otorite ve gizlilik temalı bir hediye."
+    ],
+    "allegory": "Sözün uçup gitmesine engel olan hafıza."
+  },
+  {
+    "name": "Çelebi Mumluk",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/23/130243/b42826eb-9773-4c10-9157-faf48eede9db_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/celebi-mumluk-p-000000000010019431/",
+    "short_story": "Fetret Devri'nin karanlığında Edirne'de basılan Çelebi sikkelerinden ilham aldı. Kaostan aydınlığa çıkışı ve devletin yeniden toparlanışını simgeler.",
+    "sales_tips": [
+      "Tarih bilinci yüksek kişilere.",
+      "Zor zamanlardan sonra gelen ferahlığı ve düzeni anlatır."
+    ],
+    "allegory": "Karanlığın içindeki ışık, kaosun içindeki düzen."
+  },
+  {
+    "name": "Beka Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130917/ffbe9a41-917a-448d-9c70-64a19a6575bb_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/beka-kase-p-000000000010019451/",
+    "short_story": "Akşehir Kileci Mescidi'nin ahşap pencere kanatlarındaki Selçuklu geometrisi. Çift başlı kartal motifiyle güç, asalet ve sonsuzluk (beka) arayışı.",
+    "sales_tips": [
+      "Kalıcılık ve sonsuzluk temalı bir hediye.",
+      "Selçuklu desenlerini ve ahşap sıcaklığını sevenlere."
+    ],
+    "allegory": "Geçiciliğin içinde kalıcı olanı aramak."
+  },
+  {
+    "name": "Tenedos Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130945/aa417dd0-3cf6-463c-951b-819af746af99_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/tenedos-vazo-p-000000000010019423/",
+    "short_story": "Bozcaada'nın (Tenedos) antik sikkelerindeki çift yüzlü başlar ve çifte balta. Adaletin ve adanın mitolojik geçmişinin 3 boyutlu anlatımı.",
+    "sales_tips": [
+      "Adalet temalı, hukukçular için anlamlı bir hediye.",
+      "Bozcaada aşıkları ve nümizmatik (para) koleksiyonerleri için."
+    ],
+    "allegory": "Olaylara iki yönden bakabilmek ve adalet."
+  },
+  {
+    "name": "Asklepios Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/23/130910/eee179e2-589f-4177-a9ee-81402080823e_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/asklepios-vazo-p-000000000010019418/",
+    "short_story": "Bergama antik kentinin sağlık tanrısı Asklepios ve kızı Hygieia. Tıbbın sembolü yılanlı asa figürüyle şifayı ve sağlığı evlere davet eder.",
+    "sales_tips": [
+      "Doktorlara, eczacılara ve sağlık çalışanlarına en prestijli hediye.",
+      "Şifa ve sağlık dileğiyle verilebilir."
+    ],
+    "allegory": "Acının dindirilmesi, yaşamın kutsanması."
+  },
+  {
+    "name": "Artuklu Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/06/05/138304/86a65a07-a5c7-45c1-8756-869e7d8970af_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/artuklu-vazo-p-000000000010019417/",
+    "short_story": "Artuklu sikkelerindeki ve Divriği Ulu Camii'ndeki Çift Başlı Kartal. Doğunun ve Batının, göklerin ve yerin hakimi olma iddiasının simgesi.",
+    "sales_tips": [
+      "Güç, hakimiyet ve koruma sembolü arayanlara.",
+      "Anadolu beylikleri tarihine ilgi duyanlara."
+    ],
+    "allegory": "Gözü hem geçmişte hem gelecekte olan güç."
+  },
+  {
+    "name": "Sultan Çesmesi Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/129688/100f1356-e7d5-4c0f-80db-1764ffcc9d4e_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/sultan-cesmesi-vazo-p-000000000010019248/",
+    "short_story": "Lale Devri'nin en zarif anıtı III. Ahmed Çeşmesi'nin bezemeleri. Suyun azizliği ile Osmanlı'nın estetik zirvesinin buluşması.",
+    "sales_tips": [
+      "İstanbul tarihini sevenlere.",
+      "Bolluk, ferahlık ve zarafet hissi verir."
+    ],
+    "allegory": "Suyun hayata, sanatın taşa dönüşümü."
+  },
+  {
+    "name": "Deniz Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/129821/c65169aa-b987-462a-98fb-21a041aa37ad_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/deniz-kase-p-000000000010019114/",
+    "short_story": "Mevlana'nın 'Hoşgörüde deniz gibi ol' öğüdünün camdaki yansıması. Mavi derinliklerdeki sükunet ve kabulleniş.",
+    "sales_tips": [
+      "Maneviyatı güçlü bir hediye.",
+      "Huzur veren mavi tonlarıyla sakinleştirici bir etkisi vardır."
+    ],
+    "allegory": "Kusurları örten enginlik."
+  },
+  {
+    "name": "Dörtlu Vav Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/129822/b3a9a53c-cf7c-4e31-95d6-5d0076b3df92_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/dortlu-vav-vazo-p-000000000010019055/",
+    "short_story": "Bursa Ulu Camii'nin meşhur 'Dört Vav' yazısı. 'Vavlardan sakınınız' (Sorumluluk gerektiren işlerde dikkatli olun) uyarısını estetikle sunar.",
+    "sales_tips": [
+      "Yöneticiler, hakimler ve sorumluluk makamındakiler için.",
+      "Hat sanatı ve derin manalar sevenlere."
+    ],
+    "allegory": "İnsanın acziyeti (vav) ve sorumluluğun ağırlığı."
+  },
+  {
+    "name": "Divanı Kebir Mumluk Seti",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/23/129725/f8fce86b-6b9f-4925-b698-70c4a0788a19_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/divani-kebir-mumluk-seti-p-000000000010019074/",
+    "short_story": "Semazen formunda bir aşk çağrısı. Mevlana'nın Divan-ı Kebir'inden 'Aşk ile aşık candan birdir' beytinin ışıkla dansı.",
+    "sales_tips": [
+      "Tasavvuf ve Mevlana aşığı kişiler için.",
+      "Manevi aşkı ve birliği simgeler."
+    ],
+    "allegory": "Pervanenin ateşte yanıp yok olması (Fenafillah)."
+  },
+  {
+    "name": "Alinazar Ayna",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131207/56bbadcd-84fb-4d75-9056-492aee299679_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/alinazar-ayna-p-000000000010019079/",
+    "short_story": "Fatma Ana Eli formunda, nazar ayetleriyle bezeli koruyucu bir tılsım. Kem gözleri yansıtan ve sahibini koruyan manevi kalkan.",
+    "sales_tips": [
+      "Ev hediyesi ve yeni iş yeri açılışı için en ideal parça.",
+      "Geleneksel koruma inancı ile estetiği birleştirir."
+    ],
+    "allegory": "Görünmeyen tehlikelere karşı görünür bir kalkan."
+  },
+  {
+    "name": "Süleymaniye Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130937/6d24d8a2-4881-45d7-88de-6bb086e03c98_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/suleymaniye-kase-p-000000000010019015/",
+    "short_story": "Mimar Sinan'ın kalfalık eseri Süleymaniye Camii'nin kubbe yazıları. Osmanlı ihtişamının, padişahlar silsilesinin ve maneviyatının zirvesi.",
+    "sales_tips": [
+      "Mimar Sinan ve Kanuni dönemine hayran olanlara.",
+      "Klasik Osmanlı sanatının en saf hali."
+    ],
+    "allegory": "Taşa ve cama kazınan ilahi kelam ve iktidar."
+  },
+  {
+    "name": "Vahid Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/06/05/138308/177992f5-c732-44d2-9901-7895a1a12c24_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/vahid-vazo-p-000000000010019064/",
+    "short_story": "Allah'ın 'Vahid' (Bir/Tek) isminin 'Vav' harfiyle buluşması. Aynalı yazı sanatıyla işlenmiş, birliğin ve tevhidin sembolü.",
+    "sales_tips": [
+      "Tasavvufi derinliği olan, huzur veren bir hediye.",
+      "Modern formda geleneksel hat sanatı."
+    ],
+    "allegory": "Çokluktan birliğe (Kesretten Vahdete) geçiş."
+  },
+  {
+    "name": "Muhafız Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130468/d8815eae-cd83-4250-98c9-7538f9c67561_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/muhafiz-vazo-p-000000000010016139/",
+    "short_story": "Cizre Ulu Camii'nin ünlü ejderha figürlü kapı tokmağı. Kötülükleri dışarıda bırakan, mekanı koruyan çift başlı ejderin gücü.",
+    "sales_tips": [
+      "Koruma sembolü arayanlara.",
+      "Artuklu dönemi maden sanatına ilgi duyanlara."
+    ],
+    "allegory": "Eşiği bekleyen güç, içeriye giren güven."
+  },
+  {
+    "name": "Mühürlü Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/129565/2c7c5463-e461-400c-bf76-ac6480ee5e03_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/muhurlu-vazo-p-000000000010016140/",
+    "short_story": "Geçmişin sırlarını mühürleyen bir form. Mektupların, fermanların ve hazinelerin üzerindeki o dokunulmaz mührün vazo hali.",
+    "sales_tips": [
+      "Gizem ve mahremiyet hissi uyandırır.",
+      "Kişiye özel, değerli hissettiren bir tasarım."
+    ],
+    "allegory": "Sırrın ve sözün kilitlenmesi."
+  },
+  {
+    "name": "41 Maşallah Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131006/cbff80fd-d04a-4e22-951a-f994ac581b54_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/41-masallah-kase-p-000000000010018996/",
+    "short_story": "Kırk bir kere maşallah deyişinin somutlaşmış hali. Divani hatla yazılmış 41 'Maşallah' ile bereket ve koruma kasesi.",
+    "sales_tips": [
+      "Bebek görme, düğün ve yeni ev hediyesi olarak klasiktir.",
+      "Kültürümüzün en yaygın iyi dileği."
+    ],
+    "allegory": "Sözün gücüyle kötülüğü savmak."
+  },
+  {
+    "name": "Urartu Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130758/4e11f8ed-3de0-4104-aba9-40d5d4226f49_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/urartu-vazo-p-000000000010016151/",
+    "short_story": "Doğu Anadolu'nun maden ustaları Urartuların tanrıları Haldi ve Teişeba. Van Gölü kıyılarından gelen binlerce yıllık, sert ve güçlü bir miras.",
+    "sales_tips": [
+      "Doğu Anadolu tarihi ve arkeoloji sevenlere.",
+      "Güçlü, maskülen ve köklü bir tasarım."
+    ],
+    "allegory": "Dağların ve madenin tanrısal gücü."
+  },
+  {
+    "name": "Çatalhöyük Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130779/6454999f-eb39-4d36-8a8f-1619ad46654c_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/catalhoyuk-vazo-p-000000000010016130/",
+    "short_story": "İnsanlık tarihinin ilk şehirlerinden Çatalhöyük. Duvar resimlerindeki boğa avı sahneleri ve boğa başı figürleriyle medeniyetin sıfır noktası.",
+    "sales_tips": [
+      "Tarih öncesine ve antropolojiye ilgi duyanlara.",
+      "Vahşi doğadan yerleşik düzene geçişin simgesi."
+    ],
+    "allegory": "İnsanın doğa ile mücadelesi ve ilk yuva."
+  },
+  {
+    "name": "Korur Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130649/34c89f23-4b06-4a3a-8dc3-c5487d9dfc84_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/korur-vazo-p-000000000010016137/",
+    "short_story": "Nazar duaları ve tılsımlı motiflerle bezeli bir muhafız. Evin girişinde durarak kötü enerjiyi kestiğine inanılan manevi bir obje.",
+    "sales_tips": [
+      "Korunma ihtiyacı hissedenlere.",
+      "Geleneksel motiflerle modern camın buluşması."
+    ],
+    "allegory": "Görünmez zırh."
+  },
+  {
+    "name": "Pazırık Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130432/2983e1a9-1496-477b-b9c5-e775d8848c0e_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/pazirik-kase-p-000000000010016067/",
+    "short_story": "Dünyanın en eski Türk halısı Pazırık'ın motifleri. Altay dağlarından, buzulların içinden çıkarılan Türk düğümünün ve atlılarının hikayesi.",
+    "sales_tips": [
+      "Türk kültürü ve kökenlerine ilgi duyanlara.",
+      "Halı motiflerinin cama işlenmiş nadide bir örneği."
+    ],
+    "allegory": "Köklerin derinliği ve sanatın ölümsüzlüğü."
+  },
+  {
+    "name": "Asur Gondol",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130760/20c56d3b-fa1b-4e9b-835f-d51fb1ba3244_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/asur-gondol-p-000000000010016083/",
+    "short_story": "Asur savaşçılarının nehir üzerindeki mücadelesi. Dicle ve Fırat'ın sularında, sazlardan kayıklarla yapılan bir savaşın British Museum'daki rölyefinden alıntı.",
+    "sales_tips": [
+      "Mezopotamya tarihine ilgi duyanlara.",
+      "Geniş formuyla masa ortası için gösterişli bir parça."
+    ],
+    "allegory": "Suyun üzerindeki hayat mücadelesi."
+  },
+  {
+    "name": "Ovolo Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/03/02/129398/adac3cc6-f707-4501-9295-4092309fa74f_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/ovolo-kase-p-000000000010016066/",
+    "short_story": "İskender Lahti'nin bordürlerindeki 'Ovolo' (yumurta) motifleri. İstanbul Arkeoloji Müzesi'nin en değerli eserlerinden birinin camdaki zarif detayı.",
+    "sales_tips": [
+      "Klasik mimari ve arkeoloji sevenlere.",
+      "Kesme cam işçiliğinin zarafetini taşır."
+    ],
+    "allegory": "Sonsuz döngü ve mükemmel form."
+  },
+  {
+    "name": "Seyyah Matara",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/17/130776/d511d18f-cc22-4049-a9b9-8ef612129d21_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/seyyah-matara-p-000000000010015896/",
+    "short_story": "Yolcuğun ve seferin vazgeçilmezi. Viyana Müzesi'ndeki 1581 tarihli deri mataradan ilham alan, yolun ve suyun kıymetini bilen bir tasarım.",
+    "sales_tips": [
+      "Seyahat etmeyi sevenlere sembolik bir hediye.",
+      "Erkeksi ve tarihi bir obje arayanlara."
+    ],
+    "allegory": "Hayat yolculuğundaki can suyu."
+  },
+  {
+    "name": "Zülfüaruz Şişe",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/17/130710/3ee67c23-b90a-4b29-a527-d9feeaa02f26_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/zulfuaruz-sise-p-000000000010015886/",
+    "short_story": "Selluka (Gelin Perçemi) çiçeğinin zarafeti. 16. yüzyıl Kütahya çinilerindeki kıvrımlı ve kokulu çiçeklerin camdaki narin dansı.",
+    "sales_tips": [
+      "Çiçek desenlerini ve zarafeti sevenlere.",
+      "Romantik ve nostaljik bir hediye."
+    ],
+    "allegory": "Kırılgan güzellik ve hoş koku."
+  },
+  {
+    "name": "Sarayişi Bozalık",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130090/9730534e-bfc0-4f35-872e-fe1bb560dbc7_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/sarayisi-bozalik-p-000000000010015884/",
+    "short_story": "Kış gecelerinin vazgeçilmezi bozanın saraydaki sunumu. 19. yüzyıl gümüş bozalıklarından ilham alan, geleneksel tadın aristokrat hali.",
+    "sales_tips": [
+      "Geleneksel lezzetlere ve sunuma düşkün olanlara.",
+      "Kış mevsimi için sıcak bir hediye alternatifi."
+    ],
+    "allegory": "Halk lezzetinin saray ihtişamına bürünmesi."
+  },
+  {
+    "name": "Rumeli Şişe",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130431/011c89a7-8e1a-4cf8-8a0b-7b0cea90940f_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/rumeli-sise-p-000000000010015883/",
+    "short_story": "18. yüzyıl Rumeli tombak ibriğinin modern yorumu. Bakırın altına dönüşmeye çalıştığı o büyülü 'tombak' sanatının camdaki ışıltısı.",
+    "sales_tips": [
+      "Rumeli ve Balkan kültürüne ilgi duyanlara.",
+      "Tombak sanatının ışıltısını sevenlere."
+    ],
+    "allegory": "Kültürlerin geçiş yolu ve zenginliği."
+  },
+  {
+    "name": "Seyran Sürahi",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/23/130788/f2d87479-eeac-4aaf-ad85-e8a759b773e4_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/seyran-surahi-p-000000000010015863/",
+    "short_story": "Safavi dönemi Hafız Divanı'nın cildindeki cennet bahçesi. Simurglar, ejderhalar ve orman minyatürleriyle bezeli, şiirsel bir sürahi.",
+    "sales_tips": [
+      "Edebiyat ve minyatür sanatı sevenlere.",
+      "Masalsı ve fantastik bir atmosfer yaratır."
+    ],
+    "allegory": "Hayal gücünün sınırlarında bir gezinti (Seyran)."
+  },
+  {
+    "name": "Mahber Sürahi",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130623/c993e001-aa89-4bff-8961-e7667c55efe9_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/mahber-surahi-p-000000000010015860/",
+    "short_story": "Hattatların kutsal hokkası 'Mahber'in sürahiye dönüşümü. Mürekkebin söze, suyun hayata dönüştüğü zarif bir form.",
+    "sales_tips": [
+      "Yazı ve hat sanatına ilgi duyanlara.",
+      "Bilgelik ve zarafet dolu bir hediye."
+    ],
+    "allegory": "İlim ve hayatın kaynağı."
+  },
+  {
+    "name": "Destan Pano",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130721/9bfaea1a-551a-432d-b6ef-02c724fb264d_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/destan-pano-43-cm-p-000000000010015824/",
+    "short_story": "Savaşçının kalkanı, sanatçının tuvali. 18. yüzyıl Osmanlı kalkanındaki çiçekli ve bombeli yapının, mine ve altınla cama işlenmesi.",
+    "sales_tips": [
+      "Duvar dekorasyonu için güçlü bir parça.",
+      "Korunma ve zafer temalı."
+    ],
+    "allegory": "Savaşın ortasında açan çiçekler (Zıtlıkların uyumu)."
+  },
+  {
+    "name": "Rumi Kavuk",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130392/147841c1-879d-4939-aa38-0999b5590eb1_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/rumi-kavuk-p-000000000010015777/",
+    "short_story": "Osmanlı sadrazam ve devlet adamlarının başlığı Kavuk. Çeşm-i bülbül gövde ve altın işlemeli kapakla, makam ve rütbenin camdaki temsili.",
+    "sales_tips": [
+      "Yöneticilere ve makam sahiplerine hediye.",
+      "Otorite ve bilgeliği simgeler."
+    ],
+    "allegory": "Baştaki akıl ve devletin ağırlığı."
+  },
+  {
+    "name": "Çinili Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130888/8eda35aa-8bcb-475b-b5e5-bb15080b4b38_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/cinili-vazo-p-000000000010015756/",
+    "short_story": "Fatih Sultan Mehmet'in Çinili Köşk'ünün duvarlarından süzülen desenler. Ab-ı Hayat Çeşmesi odasının huzurunu yansıtan turkuaz bir rüya.",
+    "sales_tips": [
+      "İstanbul ve Osmanlı mimarisi hayranlarına.",
+      "Mekana ferahlık ve tarih katar."
+    ],
+    "allegory": "Ölümsüzlük suyu (Ab-ı Hayat) ve sanat."
+  },
+  {
+    "name": "Kavuk Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130718/a2d9dda6-6248-49c2-9ddb-daf524018b44_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/kavuk-vazo-p-000000000010015762/",
+    "short_story": "16. yüzyıl Kütahya çini küpünün desenleriyle bezeli, kavuk formunda bir vazo. Rumi desenlerin mine tekniğiyle dansı.",
+    "sales_tips": [
+      "Kütahya çini sanatını sevenlere.",
+      "Geleneksel formuyla ağırbaşlı bir dekor."
+    ],
+    "allegory": "Geçmişin formlarının bugüne taşınması."
+  },
+  {
+    "name": "Halis Şekerlik",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/129556/88a977e2-0267-4308-a793-9215b2d1e76f_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/halis-sekerlik-p-000000000010015686/",
+    "short_story": "Saray hamamlarında kullanılan 'Kildanlık' formunun şekerliğe dönüşümü. Arınma ritüelinin zarif bir ikram objesine evrilişi.",
+    "sales_tips": [
+      "Hamam kültürü ve temizlik temalı bir hediye.",
+      "İkramda farklılık arayanlara."
+    ],
+    "allegory": "Arınma ve tatlı bir başlangıç."
+  },
+  {
+    "name": "Maşallah Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/129792/f750ea9c-e94d-4138-9737-75fae6789c29_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/masallah-kase-p-000000000010015621/",
+    "short_story": "Fatih dönemi pirinç kaplardan ilham alan, Kufi hatla yazılmış 'Maşallah' kasesi. Allah'ın dilediği olur inancının estetik hali.",
+    "sales_tips": [
+      "Nazara karşı koruma ve bereket dileğiyle alınır.",
+      "Hat sanatı ve metal işçiliği sevenlere."
+    ],
+    "allegory": "Takdiri ilahiye teslimiyet."
+  },
+  {
+    "name": "Beykoz Nostalji Büyük Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130436/c72efb00-fe49-4345-999f-b4fac4ff3021_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/beykoz-nostalji-buyuk-kase-p-000000000010015320/",
+    "short_story": "3. Selim'in mirası Beykoz camlarının görkemli bir örneği. Maydanoz desenler ve yaldızlarla bezeli, İstanbul boğazının ruhunu taşıyan eser.",
+    "sales_tips": [
+      "Gerçek bir İstanbul beyefendisi/hanımefendisi hediyesi.",
+      "Paşabahçe'nin en köklü koleksiyon parçası."
+    ],
+    "allegory": "İstanbul'un narin ve süslü ruhu."
+  },
+  {
+    "name": "Çeşm-i Bülbül Fanuslu Mumluk Mavi",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/03/02/130682/2efb882c-73b3-4291-9911-ec7d8acdca4a_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/cesm-i-bulbul-fanuslu-mumluk-mavi-p-000000000010015234/",
+    "short_story": "Bülbülün gözündeki hareler, mum ışığıyla dans ediyor. Geleneksel Çeşm-i Bülbül tekniğinin mavi ve beyazla yarattığı huzurlu aydınlık.",
+    "sales_tips": [
+      "Romantik ve huzurlu bir ortam için.",
+      "Geleneksel el sanatlarını sevenlere."
+    ],
+    "allegory": "Işığın ve rengin dönerek bütünleşmesi."
+  },
+  {
+    "name": "Çeşm-i Bülbül İbrik",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/23/130631/77e76b20-3207-4989-a2f9-036111f1f503_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/cesm-i-bulbul-ibrik-p-000000000010015219/",
+    "short_story": "Türk cam sanatının en zorlu tekniği. Renkli cam çubukların ateşte burularak bülbül gözüne dönüşmesi. Zarafetin ve ustalığın simgesi.",
+    "sales_tips": [
+      "Kusursuz el işçiliği arayan koleksiyonerlere.",
+      "Evin en özel köşesi için bir yıldız parça."
+    ],
+    "allegory": "Ateşle imtihan edilen sabrın güzelliği."
+  },
+  {
+    "name": "İnandık Vazosu",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2024/08/27/130239/69012fb4-b14b-4dce-aeb1-a6da790af1ac_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/inandik-vazosu-p-000000000010019561/",
+    "short_story": "Hititlerin kutsal evlilik törenini anlatan, 3600 yıllık İnandık Vazosu'nun yeniden doğuşu. Müzisyenler, dansçılar ve kutlamanın coşkusu.",
+    "sales_tips": [
+      "Arkeoloji meraklılarına ve Hitit tarihi sevenlere.",
+      "Evlilik ve birliktelik kutlaması için derin anlamlı bir hediye."
+    ],
+    "allegory": "Aşkın ve birliğin kutsanması."
+  },
+  {
+    "name": "Kültepe Mumluk",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131132/740b8cda-4799-4018-a82f-8d9612655991_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/kultepe-mumluk-p-000000000010019584/",
+    "short_story": "Anadolu'nun ticaret hafızası Kültepe tabletleri ve mühürleri. Asurlu tüccarların binlerce yıl önce kullandığı mühürlerin ışıkla buluşması.",
+    "sales_tips": [
+      "Ticaretle uğraşanlara 'bereketli kazanç' dileğiyle.",
+      "Yazının ve tarihin başladığı yerin anısı."
+    ],
+    "allegory": "Sözün ve anlaşmanın mühürlenmesi."
+  },
+  {
+    "name": "Çeşm-i Bülbül Kana",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130679/87e8cf56-64b1-4114-ba3b-f990889ddf35_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/cesm-i-bulbul-kana-p-000000000010015156/",
+    "short_story": "Sultan 3. Selim'in cam atölyelerinden süzülen bir klasik. Dönen çizgilerin yarattığı hipnotik güzellik, sofraların baş tacı.",
+    "sales_tips": [
+      "Geleneksel ve şık sofra sunumları için.",
+      "Su ve şerbet ikramında zarafet arayanlara."
+    ],
+    "allegory": "Akışın ve döngünün uyumu."
+  },
+  {
+    "name": "Çeşm-i Bülbül Tesbih 2",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130720/904765d7-f590-47b1-a10b-7d9245268436_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/cesm-i-bulbul-tesbih-2-p-000000000010015242/",
+    "short_story": "Sabrın taneleri. Her biri elde döndürülerek yapılan Çeşm-i Bülbül boncuklarının, ibadet ve meditasyon aracı tesbihe dönüşümü.",
+    "sales_tips": [
+      "Koleksiyonerler ve tesbih meraklıları için nadide bir parça.",
+      "Sabır ve maneviyat sembolü."
+    ],
+    "allegory": "Duaların cam tanelerine dizilmesi."
+  },
+  {
+    "name": "Mistik Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130938/24eaa34e-7785-4b9a-8799-baeffce46055_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/mistik-vazo-p-000000000010019506/",
+    "short_story": "Bursa Yeşil Türbe'nin turkuaz çinilerinin büyüleyici atmosferi. İznik ustalarına saygı duruşu niteliğinde, ruhani bir eser.",
+    "sales_tips": [
+      "Maneviyatı ve huzuru arayanlara.",
+      "Turkuazın iyileştirici gücüne inananlara."
+    ],
+    "allegory": "Dünyevi olandan ilahi olana yükseliş."
+  },
+  {
+    "name": "Çağatay Mini At Alınlığı",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130951/8e73f132-5acd-4aea-a38d-025e6e4ecad6_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/cagatay-mini-at-alinligi-75-cm-p-000000000010020289/",
+    "short_story": "Savaş atlarının alnını süsleyen ve koruyan zırhın minyatürü. New York Metropolitan Müzesi'ndeki 15. yüzyıl eserinin ışıltılı replikası.",
+    "sales_tips": [
+      "At ve binicilik tutkunlarına.",
+      "Güç, hız ve asalet sembolü."
+    ],
+    "allegory": "Yol arkadaşına verilen değer."
+  },
+  {
+    "name": "Fetih Mini Kalkan",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130270/8c9ba86d-1354-41f7-8539-72da0061532b_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/fetih-mini-kalkan-16-cm-p-000000000010020291/",
+    "short_story": "Rusya Hermitage Müzesi'ndeki 16. yüzyıl Osmanlı kalkanının minyatürü. Savaş meydanlarının koruyucusu, sanatın zarafetiyle buluştu.",
+    "sales_tips": [
+      "Tarih ve askeri obje koleksiyonerlerine.",
+      "Korunma ve savunma temalı dekoratif obje."
+    ],
+    "allegory": "Zarafetin ardındaki çelik irade."
+  },
+  {
+    "name": "Seferli Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130666/960c383d-dab2-447c-a5ad-a11dc5c598fd_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/seferli-vazo-p-000000000010015778/",
+    "short_story": "Padişahların av seferleri ve hünerleri. Hünername'den alınan minyatürlerle süslü, zırh kolçağı detaylı, erkeksilik ve güç kokan bir vazo.",
+    "sales_tips": [
+      "Avcılık ve doğa sporlarına ilgi duyanlara.",
+      "Liderlik ve beceri (hüner) mesajı verir."
+    ],
+    "allegory": "Mücadelenin ve yeteneğin sahnesi."
+  },
+  {
+    "name": "Hasbahçe Ayna",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/23/131008/925185c5-43ee-48c6-8443-d0bd5a7199c2_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/hasbahce-ayna-p-000000000010019269/",
+    "short_story": "Sarayın gizli bahçesi Hasbahçe'nin laleleri ve selvileri. Surname-i Hümayun minyatürlerinden fırlamış, ihtişamı yansıtan bir ayna.",
+    "sales_tips": [
+      "Duvarlara derinlik ve saray havası katmak için.",
+      "Lale devri romantizmini sevenlere."
+    ],
+    "allegory": "Kendini sarayın bahçesinde görmek."
+  },
+  {
+    "name": "Pence-i Al-i Aba Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/129980/3d974bc3-f660-4cb3-88ed-ae9d5a600337_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/pencei-kase-p-000000000010019010/",
+    "short_story": "Ehl-i Beyt'in (Hz. Muhammed, Ali, Fatma, Hasan, Hüseyin) isimlerinin el şeklinde yazıldığı tılsımlı bir koruma kasesi. Zülfikar ile güçlendirilmiş.",
+    "sales_tips": [
+      "Alevi-Bektaşi kültürüne ve Ehl-i Beyt sevgisine sahip olanlara.",
+      "Manevi koruma ve bereket için."
+    ],
+    "allegory": "Beş kutsal ismin koruyucu eli."
+  },
+  {
+    "name": "Şiir Gondol",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/13/130363/e0d017f5-45ec-4c74-9d76-d5be2a894e8d_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/siir-gondol-p-000000000010019462/",
+    "short_story": "18. yüzyıl el yazması bir şiir kitabının tezhip süslemeleri. Sözün müziği şiirin, görsel bir şölene dönüşmüş hali.",
+    "sales_tips": [
+      "Edebiyat severlere ve romantik ruhlara.",
+      "Zarif ve duygusal bir hediye."
+    ],
+    "allegory": "Duyguların altınla çerçevelenmesi."
+  },
+  {
+    "name": "Veli Gondol",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2024/08/27/131029/c7e966bd-2afa-4677-be7f-d4463448f742_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/veli-gondol-p-000000000010019554/",
+    "short_story": "Hacı Bektaş Veli'nin hoşgörü felsefesi. Türbesindeki 'Subhanallah', 'Ya Mennan' yazılarıyla bezeli, insan sevgisini yücelten bir eser.",
+    "sales_tips": [
+      "Bektaşi felsefesine ilgi duyanlara.",
+      "Hoşgörü ve barış mesajı vermek isteyenlere."
+    ],
+    "allegory": "İncinsen de incitme diyenin zarafeti."
+  },
+  {
+    "name": "Karanfil Dokumalı Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130234/ade9e682-83ce-4b40-8af3-70d06f1fc2d7_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/karanfil-dokumali-vazo-p-000000000010019744/",
+    "short_story": "Osmanlı kumaşlarındaki karanfil motifinin cama dokunması. Floransa Bargello Müzesi'ndeki 16. yüzyıl kumaşının modern yorumu.",
+    "sales_tips": [
+      "Tekstil ve moda tarihine ilgi duyanlara.",
+      "Karanfilin sadakat ve sevgi anlamını taşıyan bir hediye."
+    ],
+    "allegory": "İpeğin yumuşaklığının camda donması."
+  },
+  {
+    "name": "Sümbül Dokumalı Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130851/cbbfe93c-9e9b-4b19-8123-d98b65cee714_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/sumbul-dokumali-vazo-p-000000000010019758/",
+    "short_story": "Kopenhag Davids Samling Müzesi'ndeki Osmanlı kumaşının deseni. Lale, sümbül ve nar motiflerinin bereketli birlikteliği.",
+    "sales_tips": [
+      "Baharın tazeliğini ve Osmanlı bahçelerini sevenlere.",
+      "Zarif ve renkli bir dekorasyon parçası."
+    ],
+    "allegory": "Doğanın kumaşa, kumaşın cama yolculuğu."
+  },
+  {
+    "name": "Lale Dokumalı Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130964/f7caa16b-69f4-453e-84d6-63521dfc8d77_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/lale-dokumali-vazo-p-000000000010019745/",
+    "short_story": "Harvard Müzesi'ndeki 16. yüzyıl Osmanlı kumaşından alınan lale ve hatai motifleri. Bir döneme adını veren çiçeğin ölümsüzleşmesi.",
+    "sales_tips": [
+      "Lale tutkunları ve sanat tarihi sevenlere.",
+      "Osmanlı'nın simgesi olan çiçeğin en zarif hali."
+    ],
+    "allegory": "İlahi aşkın sembolü lalenin cama nakşı."
+  },
+  {
+    "name": "Tuveys Dokumalı Mumluk",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131031/390a3c36-f6bd-47a7-be9d-906ae302d53f_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/tuveys-dokumali-mumluk-p-000000000010019795/",
+    "short_story": "Küçük tavus kuşu (Tuveys) tüylerinin oluşturduğu şemseler. Floransa Bargello Müzesi'ndeki kumaş deseninin ışıkla buluşması.",
+    "sales_tips": [
+      "Egzotik ve gösterişli desenleri sevenlere.",
+      "Tavus kuşunun cenneti simgeleyen güzelliği."
+    ],
+    "allegory": "Güzelliğin binbir gözle izlenmesi."
+  },
+  {
+    "name": "Omnia \"Bey\" Yarım Vazo 26 cm",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/03/138261/e520fd10-1647-4a23-b08b-70cb8ccb977c_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-bey-yarim-26-cm-p-000000000010003864/",
+    "short_story": "Defne Koz imzalı, Beykoz camlarının modern yorumu. 'Yarım' kalan hikayelerin tamamlanmayı bekleyen sessiz ve yalın formu.",
+    "sales_tips": [
+      "Modern tasarım ve minimalist sanat sevenlere.",
+      "Boşken bile heykel gibi duran bir obje."
+    ],
+    "allegory": "Eksikliğin içindeki mükemmellik."
+  },
+  {
+    "name": "Omnia Water Towers Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/135803/4da62db4-2c77-4faf-850f-96935907eb4b_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-water-towers-vazo-p-000000000010007485/",
+    "short_story": "Endüstriyel su kulelerinin camdaki şiirsel yansıması. Fransız tasarım ofisi SCMP'nin, sanayi yapılarını zarafetle buluşturduğu eser.",
+    "sales_tips": [
+      "Endüstriyel tasarım ve mimari sevenlere.",
+      "Sıradışı ve avangard bir hediye seçeneği."
+    ],
+    "allegory": "Fonksiyonun estetiğe dönüşümü."
+  },
+  {
+    "name": "Omnia Kutuplar Karaf",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/135791/510b32c7-67e4-4f4b-96e0-7030484c78b6_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-kutuplar-karaf-p-000000000010006358/",
+    "short_story": "Zıtlıkların uyumu. Mat ve parlak, kesme ve boyama tekniklerinin aynı bedende buluştuğu, kutupları birleştiren tasarım.",
+    "sales_tips": [
+      "Modern ve sofistike sofra sunumları için.",
+      "Zıt karakterlerin birliğini simgeleyen bir hediye."
+    ],
+    "allegory": "Her şeyin zıddıyla var olması (Yin Yang)."
+  },
+  {
+    "name": "Omnia Bey Şampanya Kadehi",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/03/02/134308/8e8f25d8-4b3f-4680-8b26-0cb2b12a16fd_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-bey-sampanya-kadehi-opal-p-000000000010008698/",
+    "short_story": "Beykoz camlarının narinliğini günümüze taşıyan, sapı ve haznesi bütünleşmiş akışkan bir form. Defne Koz'un dokunuşuyla kutlamaların en zarif tanığı.",
+    "sales_tips": [
+      "Özel kutlamalar ve düğün hediyesi için.",
+      "Modern ve akıcı tasarımıyla fark yaratır."
+    ],
+    "allegory": "Kutlamanın akıp giden coşkusu."
+  },
+  {
+    "name": "Omnia \"TI-TE-CHAI\" Altın 6'lı Set",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/02/09/134064/47778170-9415-4bd5-a49c-a5fc33dfe585_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-ti-te-chai-altin-6-li-set-p-000000000010007479/",
+    "short_story": "Doğu'nun çay kültürünü Batı'nın tasarım diliyle birleştiren set. Çin kasesi ile ince belli bardağın altın yaldızlı melez güzelliği.",
+    "sales_tips": [
+      "Çay tutkunları ve tasarım meraklıları için.",
+      "Kültürlerin buluşmasını simgeler."
+    ],
+    "allegory": "Sınırların kalktığı ortak bir dil: Çay."
+  },
+  {
+    "name": "Omnia \"O\" Vazo Turuncu Bej",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/126102/2ccc3e7c-1a4d-4d57-8223-22cc885a4a9b_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-o-vazo-turuncu-bej-p-000000000010003880/",
+    "short_story": "'Omnia' kelimesinin 'O'su. Sezgin Aksu tasarımı bu vazo, içine konulan çiçeği bir harf gibi kucaklayarak hikayenin başlangıcı olur.",
+    "sales_tips": [
+      "Tipografi ve grafik tasarım sevenlere.",
+      "Kişiselleştirilebilir harf kombinasyonları için ideal."
+    ],
+    "allegory": "Her şeyin başı ve sonu olan döngü."
+  },
+  {
+    "name": "Omnia \"Pamukkale\" Obje",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/125408/ba40b6fa-0530-44a8-9127-fbcefc46a3ba_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-pamukkale-8-cm-turkuaz-p-000000000010006598/",
+    "short_story": "Doğa harikası Pamukkale travertenlerinin masanızdaki minyatürü. Beyazın saflığı ve turkuaz suyun dinginliğini birleştiren organik form.",
+    "sales_tips": [
+      "Doğa aşıkları ve Türkiye hatırası arayanlara.",
+      "Sakinleştirici ve ferahlatıcı bir dekoratif obje."
+    ],
+    "allegory": "Doğanın iyileştirici gücü."
+  },
+  {
+    "name": "Insomnia Espresso Kaşığı",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/128212/d13fee8d-933a-43e0-9fe6-fff750b20e1a_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/insomnia-s-s-espresso-kasigi-6-li-p-000000000010010644/",
+    "short_story": "Kahve keyfini tamamlayan küçük ama etkili bir detay. Uykusuz (Insomnia) gecelerin en şık eşlikçisi.",
+    "sales_tips": [
+      "Kahve gurmeleri için tamamlayıcı parça.",
+      "Modern ve esprili bir hediye."
+    ],
+    "allegory": "Küçük detayların büyük hazzı."
+  },
+  {
+    "name": "Omnia Drops Yeşil Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/03/02/126905/7d8449a8-0ad2-4776-8caf-d14a9bbf8360_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-drops-s-yesil-p-000000000010003529/",
+    "short_story": "Yağmurun bereketi. Gökyüzünden düşen damlaların yeşeren doğaya hayat verişini simgeleyen, Sezgin Aksu tasarımı canlı bir vazo.",
+    "sales_tips": [
+      "Doğallığı ve canlı renkleri sevenlere.",
+      "Bahar enerjisini eve taşır."
+    ],
+    "allegory": "Can suyunun form bulmuş hali."
+  },
+  {
+    "name": "Omnia \"Göz\" Yeşil Kana",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/126680/f006e91e-4e60-4cc2-a69e-9d16df4ce1af_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-goz-yesil-kana-p-000000000010006381/",
+    "short_story": "Berk İlhan tasarımı, neşe saçan bir sürahi. Üzerindeki göz motifiyle size gülümseyen, suyu ikram etmeyi bir oyuna dönüştüren tasarım.",
+    "sales_tips": [
+      "Eğlenceli ve modern tasarımları sevenlere.",
+      "Pozitif enerji yayan bir mutfak objesi."
+    ],
+    "allegory": "Hayata neşeyle bakan bir göz."
+  },
+  {
+    "name": "Omnia Pyramid Karaf",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/03/02/126706/e690e700-656d-476d-b7c1-432456121794_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-pyramid-karaf-p-000000000010003176/",
+    "short_story": "Çek tasarımcı Rony Plesl'in heykelsi yorumu. Piramit formunun mistik gücünü kristal camın şeffaflığıyla birleştiren anıtsal bir karaf.",
+    "sales_tips": [
+      "Mimari formları ve heykelsi objeleri sevenlere.",
+      "Sofrada bir sanat eseri gibi durur."
+    ],
+    "allegory": "Yükseliş ve dengenin kristal hali."
+  },
+  {
+    "name": "Omnia Göz Başucu Sürahisi",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/126667/1ec60bb1-9281-48ba-b5ce-804cd4b21060_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-goz-basucu-surahisi-p-000000000010006394/",
+    "short_story": "Gece susadığınızda sizi izleyen dostane bir göz. Bardağı kapak olarak kullanılan, Berk İlhan tasarımı pratik ve sevimli bir başucu arkadaşı.",
+    "sales_tips": [
+      "Kullanışlı ve esprili bir hediye.",
+      "Yatak odasına renk ve neşe katar."
+    ],
+    "allegory": "Gecenin sessiz tanığı ve yardımcısı."
+  },
+  {
+    "name": "Omnia Twist Bardak",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/127070/6041f5ab-8d69-422f-bd42-90c029927838_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-twist-bardak-p-000000000010003884/",
+    "short_story": "Suyun spiral hareketi ve girdabı. Aksu/Suardi tasarımı, içindeki sıvıyla birlikte dönüyormuş hissi veren dinamik bir bardak.",
+    "sales_tips": [
+      "Hareketli ve modern formları sevenlere.",
+      "İçim deneyimini değiştiren ergonomik bir tasarım."
+    ],
+    "allegory": "Değişimin ve akışın sürekliliği."
+  },
+  {
+    "name": "Omnia Drops 2'li Bardak Seti",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/125529/27c76a94-28a7-4980-80d4-668c95f6e13b_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-drops-2-li-bardak-seti-7-p-000000000010002462/",
+    "short_story": "Mario Trimarchi'nin 'radikal romantizmi'. Yağmur damlalarının cama değdiği ve donduğu o kırılgan anı yakalayan, elden kayacakmış gibi duran ama güven veren tasarım.",
+    "sales_tips": [
+      "Şiirsel ve sıradışı tasarımları sevenlere.",
+      "İtalya ve Sicilya rüzgarları estiren bir set."
+    ],
+    "allegory": "Anı dondurmak ve güzelliği yakalamak."
+  },
+  {
+    "name": "Omnia Lines Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/03/02/125423/8d43e5de-757e-4562-ad0c-1aa47cc5fdc7_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-lines-vazo-3-p-000000000010007455/",
+    "short_story": "Tomas Kral'ın mizahi dokunuşu. Geleneksel kesme kristal işçiliğini modern grafik çizgilerle birleştiren, hem klasik hem fütüristik bir vazo.",
+    "sales_tips": [
+      "Yenilikçi ve esprili tasarımları sevenlere.",
+      "Geleneksel ile modernin mükemmel sentezi."
+    ],
+    "allegory": "Çizgilerin dışına taşan yaratıcılık."
+  },
+  {
+    "name": "Omnia Nebula Tealight",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/126311/51764384-3940-4102-8455-b216bb567a2c_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-nebula-tealight-p-000000000010008651/",
+    "short_story": "Uzaydaki gaz bulutları (Nebula) gibi yüzen ışıklar. Matthieu Girel tasarımı, sanki alevler suyun içinden çıkıyormuş gibi illüzyon yaratan mumluk.",
+    "sales_tips": [
+      "Bilim kurgu ve uzay meraklılarına.",
+      "Büyüleyici bir atmosfer yaratmak için ideal."
+    ],
+    "allegory": "Karanlığın içindeki yaşam tohumları."
+  },
+  {
+    "name": "Omnia Karalama Kesme Şamdan",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/126500/86d483c6-c959-440b-8940-a2ea80abbfda_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-karalama-kesme-samdan-p-000000000010006639/",
+    "short_story": "Ela Cindoruk'un kağıt üzerindeki rastgele karalamalarının kristale dönüşümü. Düzensizliğin içindeki estetik ve asimetrinin cazibesi.",
+    "sales_tips": [
+      "Özgün ve sanatçı imzalı ürün arayanlara.",
+      "Sıradan şamdanlardan sıkılanlara modern bir alternatif."
+    ],
+    "allegory": "Kaosun içindeki gizli düzen."
+  },
+  {
+    "name": "Omnia Topografi Kase",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/126708/2467f0ce-666e-45c4-9177-643fd26dac9c_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-topografi-kase-23-cm-p-000000000010003901/",
+    "short_story": "Bilge Nur Saltık tasarımı, su altı dağlarının yüzeye çıkışı. Camın akışkanlığı ile mantar tabanının doğallığını birleştiren coğrafi bir keşif.",
+    "sales_tips": [
+      "Doğal malzemeleri sevenlere.",
+      "Farklı dokuların (cam ve mantar) birlikteliğini arayanlara."
+    ],
+    "allegory": "Derinliklerin yüzeye vurması."
+  },
+  {
+    "name": "Omnia Patchwork Gold Vazo",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/126476/c945611f-80ad-4da8-959f-755d84624050_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-patchwork-gold-vazo-p-000000000010006547/",
+    "short_story": "Ayşe Birsel'in 'Yap-Boz' felsefesi. Klasik Beykoz desenlerinin parçalanıp altın yamalarla yeniden birleştirildiği, kusurlu güzelliği yücelten vazo.",
+    "sales_tips": [
+      "Yenilikçi ve cesur tasarımları sevenlere.",
+      "Gelenekselin modern dekonstrüksiyonu."
+    ],
+    "allegory": "Yıkımdan doğan yeni ve daha güzel bir bütün."
+  },
+  {
+    "name": "Omnia Kontrast Şişe Füme Yeşil",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/03/02/126054/f0f87c7e-f9be-45f8-bded-db521c078f81_size3840x5760_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/omnia-kontrast-sise-fume-yesil-p-000000000010006406/",
+    "short_story": "Plastik damacanalara şık bir başkaldırı. Berk İlhan tasarımı, camın sağlığını ve zarafetini günlük su içme ritüeline geri getiren çevreci bir manifesto.",
+    "sales_tips": [
+      "Çevre bilinci yüksek ve sağlıklı yaşamı benimseyenlere.",
+      "Sofrada plastik görmek istemeyenlere."
+    ],
+    "allegory": "Sıradan olanın kıymetliye dönüşümü."
+  }
+]
