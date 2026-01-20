@@ -125,7 +125,7 @@ def smart_search(query, products):
 if st.session_state.selected_product is None:
     c1, c2, c3 = st.columns([1, 6, 1])
     with c2:
-        st.markdown("<h1 style='text-align: center; font-size: 40px;'>Koleksiyonu Keşfet.</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; font-size: 40px;'>Yol yordam bulalım mı?</h1>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #86868b; font-size: 18px;'>Her hikaye dinlemeye değerdir.</p>", unsafe_allow_html=True)
         search_query = st.text_input("", placeholder="🔍 Duygu, Meslek, Kişi veya Ürün Ara (Örn: Doktor, Aşk, Güç)", label_visibility="collapsed", key="main_search")
 
