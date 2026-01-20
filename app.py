@@ -5,85 +5,105 @@ import random
 
 # --- 1. YAPILANDIRMA ---
 st.set_page_config(
-    page_title="Mutedra | Alegorik Arama Motoru",
-    page_icon="👁️",
+    page_title="Mutedra | Alegorik Ürün İstihbaratı",
+    page_icon="💎",
     layout="wide",
-    initial_sidebar_state="collapsed" # Mobilde menü kapalı başlar, yer kaplamaz
+    initial_sidebar_state="expanded" # Menü açık başlasın
 )
 
-# --- 2. ESTETİK OTORİTE (CSS) ---
+# --- 2. ESTETİK OTORİTE (PREMIUM CSS) ---
 st.markdown("""
     <style>
-    /* Genel Arka Plan */
+    /* ANA ZEMİN */
     .stApp {
-        background-color: #0e1117;
-        color: #c9d1d9;
+        background: linear-gradient(to bottom, #0f1116, #161b22); /* Profesyonel Koyu Ton */
+        color: #e6e6e6;
     }
 
-    /* Arama Kutusu Stili (Google Gibi) */
-    .stTextInput > div > div > input {
-        background-color: #161b22;
-        color: #ffffff;
+    /* SOL MENÜ (SIDEBAR) */
+    section[data-testid="stSidebar"] {
+        background-color: #1c1f26; /* Daha açık gri-siyah */
+        border-right: 1px solid #2d333b;
+    }
+
+    /* ÜRÜN KARTLARI (KUTULAR) */
+    div[data-testid="column"] {
+        background-color: #21262d; /* Kart Rengi */
         border: 1px solid #30363d;
-        border-radius: 24px; /* Yuvarlak hatlar */
-        padding: 10px 20px;
-        font-size: 16px;
+        border-radius: 12px; /* Yuvarlak köşeler */
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Derinlik Gölgesi */
+        transition: transform 0.2s, border-color 0.2s;
         text-align: center;
+        height: 100%;
+    }
+    
+    div[data-testid="column"]:hover {
+        transform: translateY(-5px); /* Üzerine gelince yukarı kalksın */
+        border-color: #d4af37; /* Altın sarısı kenar */
+        box-shadow: 0 8px 15px rgba(212, 175, 55, 0.15);
+    }
+
+    /* RESİMLER (PROFESYONEL GÖRÜNÜM) */
+    div[data-testid="stImage"] {
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 10px;
+        background-color: #ffffff; /* Resim arkası beyaz olsun ki ürün parlasın */
+        padding: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px; /* Sabit yükseklik */
+    }
+    
+    div[data-testid="stImage"] img {
+        max-height: 190px !important;
+        object-fit: contain !important; /* Resmi kesme, sığdır */
+    }
+
+    /* BAŞLIKLAR VE METİNLER */
+    h1 { color: #d4af37; font-family: 'Helvetica Neue', sans-serif; font-weight: 300; letter-spacing: 2px; }
+    h3 { color: #ffffff; font-weight: 400; }
+    .product-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 8px;
+        height: 40px; /* İsimler için sabit alan */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    /* ARAMA KUTUSU (GOOGLE STYLE) */
+    .stTextInput > div > div > input {
+        border-radius: 50px;
+        border: 2px solid #30363d;
+        background-color: #0d1117;
+        color: white;
+        padding: 12px 20px;
+        text-align: center;
+        font-size: 16px;
     }
     .stTextInput > div > div > input:focus {
         border-color: #d4af37;
-        box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
     }
 
-    /* Ürün Kartı Resim Ayarı (Kocaman resimleri engeller) */
-    div[data-testid="stImage"] img {
-        height: 180px;          /* Sabit yükseklik */
-        width: 100%;            /* Genişlik sığsın */
-        object-fit: contain;    /* Resmi kesmeden sığdır */
-        margin-bottom: 10px;
-    }
-
-    /* Kart Kutusu */
-    div[data-testid="column"] {
-        background-color: #161b22;
-        border: 1px solid #21262d;
-        border-radius: 12px;
-        padding: 15px;
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-    div[data-testid="column"]:hover {
-        border-color: #d4af37;
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    }
-
-    /* Butonlar */
+    /* BUTONLAR */
     .stButton > button {
-        width: 100%;
-        border-radius: 20px;
-        background-color: #21262d;
+        border-radius: 8px;
+        border: 1px solid #d4af37;
+        background-color: transparent;
         color: #d4af37;
-        border: 1px solid #30363d;
+        width: 100%;
+        font-weight: bold;
     }
     .stButton > button:hover {
         background-color: #d4af37;
-        color: #0e1117;
-        border-color: #d4af37;
-    }
-    
-    /* Metinler */
-    h1, h2, h3 { font-family: 'Helvetica Neue', sans-serif; font-weight: 300; }
-    .product-title { font-size: 14px; font-weight: 600; min-height: 40px; display: flex; align-items: center; justify-content: center; }
-    .price-tag { color: #8b949e; font-size: 12px; margin-bottom: 10px; }
-    
-    /* Alegori Kutusu */
-    .allegory-box {
-        background: linear-gradient(135deg, #1e2130 0%, #0d1117 100%);
-        border-left: 4px solid #d4af37;
-        padding: 20px;
-        margin-top: 20px;
-        border-radius: 0 8px 8px 0;
+        color: #000000;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -94,7 +114,6 @@ def load_data():
     try:
         with open('urunler.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
-            # Her ürüne bir ID verelim
             for i, item in enumerate(data):
                 item['id'] = i
             return data
@@ -103,140 +122,146 @@ def load_data():
 
 products = load_data()
 
-# --- 4. SOL MENÜ (Sistem Bilgileri) ---
+# --- 4. SOL MENÜ (SIDEBAR) ---
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/5360/5360936.png", width=60)
-    st.markdown("### MUTEDRA")
-    st.caption("v3.0 | Alegorik Arama Motoru")
+    st.image("https://cdn-icons-png.flaticon.com/512/5360/5360936.png", width=80)
+    st.title("MUTEDRA")
+    st.caption("Alegorik Ürün İstihbaratı v4.0")
     
     st.divider()
     
-    st.markdown("**Sistem Durumu**")
-    st.success("🟢 Aktif")
-    
-    st.markdown("**Veritabanı**")
-    st.info(f"💾 {len(products)} Ürün Entegre")
+    # Navigasyon
+    menu = st.radio("MENÜ", ["🏠 Ana Sayfa", "ℹ️ Hakkımızda", "📞 İletişim"], index=0)
     
     st.divider()
-    st.markdown("### 🛠️ Emeği Geçenler")
-    st.markdown("""
-    **Developer:** Umut  
-    **AI Core:** Mutedra Protocol  
-    **Vizyon:** Sarsılmazlık İlkesi
-    """)
+    
+    # İletişim / Bilgi Kartı
+    if menu == "📞 İletişim":
+        st.info("📧 info@mutedra.com\n📍 İstanbul, Türkiye")
+    elif menu == "ℹ️ Hakkımızda":
+        st.info("Mutedra, nesnelerin görünen yüzeyinin ötesindeki derin anlamı ve satış hikayesini ortaya çıkaran yapay zeka destekli bir analiz protokolüdür.")
+    
+    st.markdown("---")
+    st.markdown("**Geliştirici:** Umut")
+    st.caption("© 2026 Mutedra Protocol")
 
-# --- 5. ANA EKRAN MİMARİSİ ---
+# --- 5. ANA SAYFA MİMARİSİ ---
 
-# State Yönetimi (Seçilen Ürün)
+# State Yönetimi
 if 'selected_product' not in st.session_state:
     st.session_state.selected_product = None
 
 def select_product(product):
     st.session_state.selected_product = product
 
-# -- HEADER & ARAMA (Google Style) --
+# -- ARAMA VE BAŞLIK (ORTA ALAN) --
 if st.session_state.selected_product is None:
-    # Boşluk bırakarak ortala
-    c1, c2, c3 = st.columns([1, 2, 1])
+    
+    # Logo ve Başlık Ortalı
+    c1, c2, c3 = st.columns([1, 6, 1])
     with c2:
-        st.markdown("<h1 style='text-align: center; color: #d4af37;'>MUTEDRA</h1>", unsafe_allow_html=True)
-        search_query = st.text_input("", placeholder="🔍 Alegorik bir şeyler arayın... (Örn: Vazo, Lale, Güç)", label_visibility="collapsed")
+        st.markdown("<h1 style='text-align: center;'>MUTEDRA</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #8b949e;'>Nesnelerin ruhunu keşfedin.</p>", unsafe_allow_html=True)
+        
+        # Google Tarzı Arama
+        search_query = st.text_input("", placeholder="🔍 Ürün, hikaye veya duygu arayın...", label_visibility="collapsed")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # -- VİTRİN MANTIĞI --
-    
-    # 1. Filtreleme veya Rastgele Seçim
+    # -- VİTRİN --
     if search_query:
-        # Arama varsa filtrele
-        display_items = [p for p in products if search_query.lower() in p['name'].lower() or search_query.lower() in p.get('raw_story', '').lower()]
-        header_text = f"Bulunan Sonuçlar ({len(display_items)})"
+        display_items = [p for p in products if search_query.lower() in p['name'].lower() or search_query.lower() in p.get('short_story', '').lower()]
+        st.markdown(f"### 📂 Arama Sonuçları ({len(display_items)})")
     else:
-        # Arama yoksa RASTGELE 8 ürün göster (Keşfet Modu)
-        # Eğer ürün sayısı 8'den azsa hepsini göster
-        sample_size = min(len(products), 8)
+        # Rastgele Öneri (Keşfet Modu)
+        sample_size = min(len(products), 12) # 12 Ürün gösterelim
         display_items = random.sample(products, sample_size)
-        header_text = "✨ Mutedra'nın Seçtikleri (Bugünün İlhamı)"
+        st.markdown("### ✨ Sizin İçin Seçtiklerimiz")
 
-    st.subheader(header_text)
-    
-    # 2. Grid Gösterimi (4 Sütunlu - Mobilde otomatik teklenir)
-    # Ürünleri 4'erli gruplara bölüyoruz
+    # Grid Sistemi (4 Sütun)
+    # Mobilde otomatik teklenir, masaüstünde 4'lü olur
     cols = st.columns(4)
     
     for idx, p in enumerate(display_items):
         with cols[idx % 4]:
+            # --- KART YAPISI BAŞLANGICI ---
             # Resim
             if p.get('image'):
                 st.image(p['image'], use_container_width=True)
             else:
-                st.markdown("📷 *Görsel Yok*")
+                st.markdown("<div style='height:200px; display:flex; align-items:center; justify-content:center; background:#333; color:#777;'>Görsel Yok</div>", unsafe_allow_html=True)
             
-            # İsim (Uzunsa kes)
-            short_name = (p['name'][:25] + '..') if len(p['name']) > 25 else p['name']
-            st.markdown(f"<div class='product-title'>{short_name}</div>", unsafe_allow_html=True)
+            # Ürün İsmi
+            st.markdown(f"<div class='product-title'>{p['name']}</div>", unsafe_allow_html=True)
             
-            # Buton
+            # Fiyat (Varsa)
+            if p.get('price'):
+                st.caption(f"🏷️ {p['price']}")
+            
+            # İncele Butonu
             if st.button("İncele", key=f"btn_{p['id']}"):
                 select_product(p)
                 st.rerun()
+            # --- KART SONU ---
 
-# -- DETAY SAYFASI (Ürün Seçilince) --
+# -- DETAY SAYFASI --
 else:
     p = st.session_state.selected_product
     
-    # Geri Dön
-    if st.button("← Aramaya Dön", use_container_width=False):
-        st.session_state.selected_product = None
-        st.rerun()
+    # Üst Bar (Geri Dön)
+    c_back, c_title = st.columns([1, 5])
+    with c_back:
+        if st.button("← Geri"):
+            st.session_state.selected_product = None
+            st.rerun()
     
     st.divider()
-    
-    # Detay Düzeni
-    c1, c2 = st.columns([1, 1.5])
-    
-    with c1:
-        st.image(p['image'], use_container_width=True)
-        # Resmi siteye git butonu
-        if p.get('link'):
-            st.link_button("🌐 Ürünü Sitede Gör", p['link'], use_container_width=True)
 
-    with c2:
+    # Ürün Detayları
+    col_img, col_info = st.columns([1, 1.5])
+    
+    with col_img:
+        st.image(p['image'], use_container_width=True)
+        if p.get('link'):
+            st.link_button("🌐 Ürünü Sitesinde Gör", p['link'], use_container_width=True)
+
+    with col_info:
         st.title(p['name'])
         
-        # Fiyat varsa göster
-        if p.get('price'):
-            st.markdown(f"<div class='price-tag'>{p['price']}</div>", unsafe_allow_html=True)
-
-        # Hikaye (İşlenmiş veri varsa onu, yoksa ham veriyi göster)
-        hikaye = p.get('short_story', p.get('raw_story', 'Analiz ediliyor...'))
-        st.info(hikaye)
+        # Vurucu Hikaye
+        hikaye = p.get('short_story', p.get('raw_story', 'Analiz bekleniyor...'))
+        st.info(f"📖 {hikaye}")
         
-        # Alegori Analizi (Simülasyon)
-        with st.spinner('Mutedra Derin Analiz Yapıyor...'):
-            time.sleep(0.7) # Yapay zeka düşünme efekti
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Mutedra Analizi
+        with st.spinner('Alegorik katmanlar işleniyor...'):
+            time.sleep(0.5)
             
-        alegori = p.get('allegory', "Bu nesne, maddenin ötesinde bir anlam taşır. Camın kırılganlığı ile tarihin kalıcılığı arasındaki tezatı temsil eder.")
-        
+        # Alegori
+        alegori = p.get('allegory', "Bu nesne, maddenin ötesinde derin bir anlam taşır.")
         st.markdown(f"""
-            <div class="allegory-box">
-                <strong style="color:#d4af37">DERİN ANLAM (ALEGORİ):</strong><br>
-                {alegori}
+            <div style="background: #1c1f26; border-left: 5px solid #d4af37; padding: 20px; border-radius: 8px;">
+                <h4 style="color: #d4af37; margin:0;">👁️ DERİN ANLAM (ALEGORİ)</h4>
+                <p style="margin-top: 10px; color: #ddd;">{alegori}</p>
             </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("### 🧠 Satış Stratejisi")
-        col_tip1, col_tip2 = st.columns(2)
-        
-        tips = p.get('sales_tips', ["Koleksiyonerlere önerin.", "Hikayesinden bahsedin."])
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Satış Tiyoları (Grid)
+        t1, t2 = st.columns(2)
+        tips = p.get('sales_tips', ["Koleksiyonluk bir parça.", "Hikayesiyle etkileyin."])
         if isinstance(tips, str): tips = [tips]
         
-        with col_tip1:
-            st.success(f"🎯 **Hedef:** {tips[0]}")
-        with col_tip2:
+        with t1:
+            st.success(f"🎯 **Hedef Kitle:**\n{tips[0]}")
+        with t2:
             if len(tips) > 1:
-                st.warning(f"💡 **Tiyo:** {tips[1]}")
+                st.warning(f"💡 **Satış Tiyosu:**\n{tips[1]}")
+            else:
+                st.warning("💡 **Tiyo:** Duygusal bağ kurun.")
 
 # Footer
-st.markdown("<br><br><br>", unsafe_allow_html=True)
-st.markdown("<div style='text-align: center; color: #30363d; font-size: 12px;'>Mutedra © 2026 | Sarsılmazlık İlkesi</div>", unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #555;'>Mutedra Alegorik Analizör © 2026</div>", unsafe_allow_html=True)
