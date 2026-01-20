@@ -1,235 +1,142 @@
-import React, { useState } from 'react';
-import { Search, Sparkles, Brain, TrendingUp } from 'lucide-react';
+import streamlit as st
+import json
+import time
+import random
 
-const PasabahceAnalyzer = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [analyzedProducts, setAnalyzedProducts] = useState({});
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+# --- Yapılandırma ---
+st.set_page_config(
+    page_title="Mutedra Alegorik Analizör",
+    page_icon="⚱️",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-  // Simüle edilmiş ürün veritabanı
-  const SAMPLE_PRODUCTS = {
-    "Bella Vazo": {
-      url: "https://www.pasabahcemagazalari.com/bella-vazo",
-      rawStory: "Bella, zamanın özenle işlediği cam sanatının bir eseridir. Her detayı, ustalık ve estetiğin birleşimidir.",
-      image: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=400"
-    },
-    "Lykia Kase": {
-      url: "https://www.pasabahcemagazalari.com/lykia-kase",
-      rawStory: "Antik Lykia medeniyetinden ilham alan bu kase, geçmişin izlerini günümüze taşır.",
-      image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400"
-    },
-    "Diva Kadeh": {
-      url: "https://www.pasabahcemagazalari.com/diva-kadeh",
-      rawStory: "Her yudum, bir ritüeldir. Diva, sofranızın baş tacıdır.",
-      image: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=400"
+# --- CSS Stil Manipülasyonu (Estetik Otorite) ---
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #0e1117;
+        color: #e0e0e0;
     }
-  };
-
-  const analyzeProduct = async (productName, rawStory) => {
-    setIsAnalyzing(true);
-    
-    // API çağrısı simülasyonu
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const analysis = {
-      allegory: `${productName}, zamanın kristalleşmiş iradesidir. Her yüzeyi, bilinçaltının geometrik tezahürüdür. Maddenin içinde saklı olan formların özgürleşme anıdır. Bu nesne, kullanıcısına "Ben buradayım" diyen sessiz bir manifestodur. Cam, ışığı sadece geçirmeyi değil, dönüştürmeyi de bilir—tıpkı insan bilincinin ham deneyimleri anlamlara dönüştürmesi gibi.`,
-      
-      mnemonics: [
-        `${productName} = Zamanın Maddeleşmiş Belleği`,
-        "Her kullanım, nöral yolları güçlendirir (Hebbian İlkesi)",
-        "Sahiplik değil, vekillik: Siz bu eserin koruyucususunuz"
-      ],
-      
-      salesTips: [
-        {
-          title: "Nesne Kalıcılığı Prensibi",
-          content: `${productName}, müşterinizin mekanında kalıcı bir 'yer işareti' oluşturur. Psikolojide 'nesne sürekliliği' olarak bilinen bu fenomen, mekana aidiyet duygusunu %67 artırır. Her bakış, ev sahibinin estetik kimliğini pekiştirir.`
-        },
-        {
-          title: "Estetik Ödül Mekanizması",
-          content: "Beynin ödül merkezi (nucleus accumbens), simetrik ve dengeli formları gördüğünde dopamin salgılar. Bu ürün, günlük hayatta 'mikro-mutluluk' kaynağıdır. Sabah kahveniz bile bir ritüele dönüşür."
-        },
-        {
-          title: "Sosyal Sinyal Teorisi",
-          content: "Ev ziyaretlerinde, seçkin nesneler 'kültürel sermaye' işlevi görür. Bu, sahibinin kimliğini iletişim kurmadan ifade eder (Bourdieu, 1984). Misafirleriniz sizi anlamadan hisseder."
-        }
-      ]
-    };
-    
-    setIsAnalyzing(false);
-    return analysis;
-  };
-
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    
-    const matches = Object.entries(SAMPLE_PRODUCTS).filter(([name]) =>
-      name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    
-    const newAnalyzed = {};
-    
-    for (const [name, data] of matches) {
-      const cacheKey = `${name}_${data.rawStory.substring(0, 50)}`;
-      
-      if (analyzedProducts[cacheKey]) {
-        newAnalyzed[cacheKey] = analyzedProducts[cacheKey];
-      } else {
-        const analysis = await analyzeProduct(name, data.rawStory);
-        newAnalyzed[cacheKey] = { ...data, name, analysis };
-      }
+    .block-container {
+        padding-top: 2rem;
     }
+    h1, h2, h3 {
+        font-family: 'Helvetica Neue', sans-serif;
+        font-weight: 300;
+        letter-spacing: 0.1em;
+    }
+    .allegory-box {
+        background-color: #1e2130;
+        border-left: 4px solid #d4af37;
+        padding: 20px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+    .highlight {
+        color: #d4af37; /* Altın sarısı */
+        font-weight: bold;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- Veri Yükleme ---
+def load_data():
+    try:
+        with open('urunler.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+# --- AI Simülasyon Motoru (API Yerine Geçici Mantık) ---
+def generate_analysis(product_name):
+    """
+    Claude API entegrasyonu yapılana kadar, beklenen çıktı formatını
+    simüle eden deterministik fonksiyon.
+    """
     
-    setAnalyzedProducts(newAnalyzed);
-  };
+    # Gerçek API buraya bağlanacak. Şimdilik Mutedra felsefesini simüle ediyoruz.
+    allegories = [
+        f"{product_name}, maddenin kristalleşmiş iradesidir. Camın şeffaflığı, hakikatin gizlenemez doğasına bir atıftır.",
+        f"{product_name}, boşluğun (void) madde ile çevrelenmiş halidir. Kullanıcısına sahip olmayı değil, muhafaza etmeyi öğretir.",
+        f"Zamanın akışına direnen bir form: {product_name}. Kırılganlığı, insan ruhunun hassasiyetiyle analojik bir bağ kurar."
+    ]
+    
+    sales_tactics = [
+        "Müşteride 'seçkinlik' algısını tetikleyin (Veblen Etkisi).",
+        "Ürünü bir 'ihtiyaç' değil, bir 'kimlik uzantısı' olarak konumlandırın.",
+        "Kıtlık prensibini vurgulayın: Bu bir üretim değil, bir yaratımdır."
+    ]
+    
+    return {
+        "allegory": random.choice(allegories),
+        "mnemonics": [f"{product_name} = Statü", "Şeffaflık = Dürüstlük", "Ağırlık = Gerçeklik"],
+        "sales_tip": random.choice(sales_tactics)
+    }
 
-  const filteredProducts = Object.entries(SAMPLE_PRODUCTS).filter(([name]) =>
-    name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+# --- Arayüz Mimarisi ---
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-6">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-light tracking-widest text-amber-400 mb-3">
-            ⚱️ ALEGORİK ÜRÜN İSTİHBARAT SİSTEMİ ⚱️
-          </h1>
-          <p className="text-amber-400/70 text-sm tracking-[0.3em]">
-            MUTLAK DOĞRU ARŞİVİ
-          </p>
-        </div>
+# Başlık
+st.title("⚱️ Mutedra: Alegorik Ürün İstihbaratı")
+st.markdown("*\"Mutlak Doğru, nesnenin görünen yüzeyinin ötesindedir.\"*")
+st.divider()
 
-        {/* Search Bar */}
-        <div className="max-w-2xl mx-auto mb-12">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Ürün adı yazınız (örn: Bella, Lykia, Diva)..."
-              className="w-full bg-white/10 backdrop-blur-md border-2 border-amber-400/50 rounded-xl px-6 py-4 text-lg focus:outline-none focus:border-amber-400 transition-all"
-            />
-            <button
-              onClick={handleSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-amber-400 text-slate-900 p-3 rounded-lg hover:bg-amber-300 transition-all"
-            >
-              <Search size={20} />
-            </button>
-          </div>
-        </div>
+# Veri Kontrolü
+products = load_data()
 
-        {/* Results */}
-        {isAnalyzing && (
-          <div className="text-center text-amber-400 mb-8">
-            <Sparkles className="inline animate-spin mr-2" />
-            Analiz ediliyor...
-          </div>
-        )}
+if not products:
+    st.error("Veri bulunamadı! Önce 'scraper.py' dosyasını çalıştırarak veritabanını oluşturun.")
+    st.info("Terminal Komutu: python scraper.py")
+else:
+    # Arama Çubuğu
+    search_term = st.text_input("Ürün Veritabanında Ara:", placeholder="Örn: Vazo, Kase, Gondol...")
 
-        {Object.entries(analyzedProducts).map(([key, product]) => (
-          <div
-            key={key}
-            className="bg-white/5 backdrop-blur-lg border border-amber-400/30 rounded-2xl p-8 mb-8 hover:border-amber-400/50 transition-all"
-          >
-            <div className="flex gap-6 mb-6">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-48 h-48 object-cover rounded-lg border-2 border-amber-400/30"
-              />
-              <div className="flex-1">
-                <h2 className="text-3xl font-light text-amber-400 mb-3">
-                  {product.name}
-                </h2>
-                <a
-                  href={product.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  🔗 Ürün Sayfası
-                </a>
-              </div>
-            </div>
+    # Filtreleme
+    filtered_products = [p for p in products if search_term.lower() in p['name'].lower()]
 
-            {/* Allegory */}
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 border-b border-amber-400/30 pb-2">
-                <Sparkles className="text-amber-400" size={20} />
-                <h3 className="text-xl font-semibold text-amber-400">
-                  Derin Alegori
-                </h3>
-              </div>
-              <p className="text-gray-200 leading-relaxed italic text-justify">
-                {product.analysis.allegory}
-              </p>
-            </div>
+    if search_term:
+        st.write(f"Tespit edilen varlık sayısı: {len(filtered_products)}")
+        
+        for p in filtered_products:
+            with st.container():
+                col1, col2 = st.columns([1, 2])
+                
+                with col1:
+                    if p['image']:
+                        st.image(p['image'], use_column_width=True)
+                    else:
+                        st.markdown("👻 *Görsel veri yok*")
+                    
+                    st.caption(f"Fiyat Endeksi: {p['price']}")
+                    st.link_button("Kaynağa Git", p['link'])
 
-            {/* Mnemonics */}
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 border-b border-amber-400/30 pb-2">
-                <Brain className="text-amber-400" size={20} />
-                <h3 className="text-xl font-semibold text-amber-400">
-                  Mnemoni (Hafıza Çivileri)
-                </h3>
-              </div>
-              <div className="space-y-3">
-                {product.analysis.mnemonics.map((mnem, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-amber-400/10 border-l-4 border-amber-400 p-4 rounded"
-                  >
-                    {mnem}
-                  </div>
-                ))}
-              </div>
-            </div>
+                with col2:
+                    st.subheader(p['name'])
+                    
+                    if st.button(f"Analiz Et: {p['name']}", key=p['id']):
+                        with st.spinner('Mutedra Nöral Ağları çalışıyor...'):
+                            time.sleep(1.5) # İşlem ağırlığı hissi
+                            analysis = generate_analysis(p['name'])
+                            
+                            st.markdown("### 👁️ Derin Alegori")
+                            st.markdown(f"""
+                            <div class="allegory-box">
+                                {analysis['allegory']}
+                            </div>
+                            """, unsafe_allow_html=True)
+                            
+                            c1, c2 = st.columns(2)
+                            with c1:
+                                st.markdown("#### 🧠 Hafıza Çivileri (Mnemoni)")
+                                for m in analysis['mnemonics']:
+                                    st.markdown(f"- {m}")
+                            
+                            with c2:
+                                st.markdown("#### 📈 Klinik Satış Stratejisi")
+                                st.info(analysis['sales_tip'])
+                
+                st.divider()
 
-            {/* Sales Tips */}
-            <div>
-              <div className="flex items-center gap-2 mb-3 border-b border-amber-400/30 pb-2">
-                <TrendingUp className="text-amber-400" size={20} />
-                <h3 className="text-xl font-semibold text-amber-400">
-                  Klinik Satış Tiyoları
-                </h3>
-              </div>
-              <div className="space-y-4">
-                {product.analysis.salesTips.map((tip, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-purple-900/40 border border-amber-400/20 rounded-lg p-5"
-                  >
-                    <h4 className="font-semibold text-amber-300 mb-2">
-                      {tip.title}
-                    </h4>
-                    <p className="text-gray-300 leading-relaxed">
-                      {tip.content}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {searchQuery && filteredProducts.length === 0 && !isAnalyzing && (
-          <div className="text-center text-gray-400 bg-white/5 rounded-xl p-8">
-            🔍 Eşleşen ürün bulunamadı. Lütfen farklı bir anahtar kelime deneyin.
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="text-center text-gray-500 text-sm mt-16 pt-8 border-t border-gray-700">
-          <p className="mb-2">
-            🏺 Bu sistem, nesnelerin metafizik değerini klinik satış stratejilerine dönüştürür.
-          </p>
-          <p>Sarsılmazlık İlkesi: Gerçeğin Peşinde, Aldanmanın Ötesinde.</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PasabahceAnalyzer;
+# Footer
+st.markdown("---")
+st.caption("Mutedra © 2026 | Sarsılmazlık İlkesi ile kodlanmıştır. | Developer: Umut")
