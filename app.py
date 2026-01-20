@@ -21,29 +21,7 @@ st.markdown("""
         font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    /* 2. MOBİL MENÜ BUTONU (DİKKAT ÇEKİCİ HALE GETİRME) */
-    /* Menü kapalıyken görünen ok butonu */
-    [data-testid="stSidebarCollapsedControl"] {
-        background-color: #ffffff;
-        color: #d4af37 !important; /* İkon rengi Altın */
-        border: 2px solid #d4af37; /* Altın Çerçeve */
-        border-radius: 50%; /* Yuvarlak */
-        width: 50px;
-        height: 50px;
-        transform: scale(1.2); /* Büyüt */
-        margin-top: 10px;
-        margin-left: 10px;
-        box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); /* Altın Gölge */
-        transition: all 0.3s ease;
-    }
-    
-    [data-testid="stSidebarCollapsedControl"]:hover {
-        background-color: #d4af37;
-        color: #ffffff !important;
-        transform: scale(1.3);
-    }
-
-    /* 3. SOL MENÜ */
+    /* 2. SOL MENÜ */
     section[data-testid="stSidebar"] {
         background-color: #ffffff;
         border-right: 1px solid #d2d2d7;
@@ -55,7 +33,7 @@ st.markdown("""
         color: #1d1d1f !important;
     }
 
-    /* 4. ÜRÜN KARTLARI */
+    /* 3. ÜRÜN KARTLARI */
     div[data-testid="column"] {
         background-color: #ffffff;
         border-radius: 18px;
@@ -76,7 +54,7 @@ st.markdown("""
         border-color: #d4af37;
     }
 
-    /* 5. RESİMLER */
+    /* 4. RESİMLER */
     div[data-testid="stImage"] {
         display: flex;
         justify-content: center;
@@ -91,7 +69,7 @@ st.markdown("""
         mix-blend-mode: multiply;
     }
 
-    /* 6. METİNLER */
+    /* 5. METİNLER */
     .product-title {
         font-size: 15px;
         font-weight: 600;
@@ -104,7 +82,7 @@ st.markdown("""
         line-height: 1.3;
     }
 
-    /* 7. ARAMA KUTUSU */
+    /* 6. ARAMA KUTUSU */
     .stTextInput > div > div > input {
         background-color: #ffffff;
         color: #1d1d1f;
@@ -119,7 +97,7 @@ st.markdown("""
         box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
     }
 
-    /* 8. BUTONLAR */
+    /* 7. BUTONLAR */
     .stButton > button {
         background-color: #f5f5f7;
         color: #1d1d1f;
@@ -135,7 +113,7 @@ st.markdown("""
         color: #ffffff;
     }
 
-    /* 9. DETAY ALANLARI */
+    /* 8. DETAY ALANLARI */
     .story-box {
         background-color: #ffffff;
         border-left: 4px solid #d4af37;
@@ -152,6 +130,18 @@ st.markdown("""
         border-radius: 18px;
         margin-top: 20px;
     }
+    
+    /* 9. ETİKETLER (TAGS) */
+    .tag-badge {
+        background-color: #e5e5ea;
+        color: #1d1d1f;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        margin-right: 5px;
+        display: inline-block;
+        margin-bottom: 5px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -161,6 +151,7 @@ def load_data():
     try:
         with open('urunler.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
+            # ID ataması
             for i, item in enumerate(data):
                 item['id'] = i
             return data
@@ -212,61 +203,107 @@ with st.sidebar:
         **⚠️ Dipnot:** Sistemi kendi imkanlarımız ile geliştirdiğimizden, yoğunluk sebebiyle aksaklıklar yaşanabilir. Geri bildirimleriniz ve fikirleriniz bizim için çok değerlidir.
         """)
     
-    # EMEĞİ GEÇENLER KARTI
+    # EMEĞİ GEÇENLER (Hatasız)
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("""<div style='background-color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #d2d2d7; text-align: center; color: #1d1d1f; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
-<div style='font-size: 15px; font-weight: bold; margin-bottom: 5px; color: #000;'>Designed by Umut Doğan</div>
-<div style='font-size: 12px; color: #555; margin-bottom: 15px;'>(Tasarım & Kodlama)</div>
-<div style='border-top: 1px solid #e5e5e5; margin: 10px 20px;'></div>
-<div style='font-size: 13px; font-weight: 700; color: #555; margin-bottom: 8px; letter-spacing: 1px;'>EMEĞİ GEÇENLER</div>
-<div style='font-size: 14px; font-weight: 500; line-height: 1.8; color: #333;'>
-Adem Keleş<br>
-Fatih Demir<br>
-Nuriye Kulaksız
-</div>
-<div style='border-top: 1px solid #e5e5e5; margin: 15px 20px;'></div>
-<div style='font-size: 12px; font-weight: 700; color: #d4af37;'>
-Palladium ve Hilltown<br>Mağazaları Ürünüdür.
-</div>
-</div>""", unsafe_allow_html=True)
+    
+    footer_html = """
+    <div style='background-color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #d2d2d7; text-align: center; color: #1d1d1f; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
+        <div style='font-size: 15px; font-weight: bold; margin-bottom: 5px; color: #000;'>Designed by Umut Doğan</div>
+        <div style='font-size: 12px; color: #555; margin-bottom: 15px;'>(Tasarım & Kodlama)</div>
+        
+        <div style='border-top: 1px solid #e5e5e5; margin: 10px 20px;'></div>
+        
+        <div style='font-size: 13px; font-weight: 700; color: #555; margin-bottom: 8px; letter-spacing: 1px;'>EMEĞİ GEÇENLER</div>
+        <div style='font-size: 14px; font-weight: 500; line-height: 1.8; color: #333;'>
+            Adem Keleş<br>
+            Fatih Demir<br>
+            Nuriye Kulaksız
+        </div>
+        
+        <div style='border-top: 1px solid #e5e5e5; margin: 15px 20px;'></div>
+        
+        <div style='font-size: 12px; font-weight: 700; color: #d4af37;'>
+            Palladium ve Hilltown<br>Mağazaları Ürünüdür.
+        </div>
+    </div>
+    """
+    st.markdown(footer_html, unsafe_allow_html=True)
 
 # --- 5. ANA EKRAN MANTIĞI ---
+
+# --- ARAMA ALGORİTMASI (AKILLI FİLTRE) ---
+def smart_search(query, products):
+    if not query:
+        return []
+    
+    query = query.lower()
+    results = []
+    
+    for p in products:
+        # 1. İsimde ara
+        in_name = query in p.get('name', '').lower()
+        # 2. Hikayede ara
+        in_story = query in p.get('short_story', '').lower() or query in p.get('raw_story', '').lower()
+        # 3. Etiketlerde ara (Gizli Kategori)
+        in_tags = any(query in tag.lower() for tag in p.get('tags', []))
+        # 4. Alegoride ara
+        in_allegory = query in p.get('allegory', '').lower()
+        # 5. Satış Tiyolarında ara
+        in_tips = any(query in tip.lower() for tip in p.get('sales_tips', []))
+        
+        if in_name or in_story or in_tags or in_allegory or in_tips:
+            results.append(p)
+            
+    return results
 
 # --- MOD 1: VİTRİN ---
 if st.session_state.selected_product is None:
     
-    # Mobilde menü uyarısı (İsteğe bağlı, ama buton zaten artık çok belirgin)
-    # st.caption("👈 Menüyü açmak için sol üstteki butona tıklayın.")
-
     c1, c2, c3 = st.columns([1, 6, 1])
     with c2:
-        st.markdown("<h1 style='text-align: center; font-size: 40px; font-weight: 700; letter-spacing: -1px;'>Koleksiyonu Keşfet.</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; font-size: 40px;'>Koleksiyonu Keşfet.</h1>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #86868b; font-size: 18px;'>Her hikaye dinlemeye değerdir.</p>", unsafe_allow_html=True)
-        search_query = st.text_input("", placeholder="🔍 Ürün, hikaye veya duygu arayın...", label_visibility="collapsed", key="main_search")
+        # Google tarzı arama kutusu
+        search_query = st.text_input("", placeholder="🔍 Duygu, Meslek, Kişi veya Ürün Ara (Örn: Doktor, Aşk, Güç)", label_visibility="collapsed", key="main_search")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     if search_query:
-        display_items = [p for p in products if search_query.lower() in p['name'].lower() or search_query.lower() in p.get('short_story', '').lower()]
-        st.markdown(f"### 📂 Arama Sonuçları ({len(display_items)})")
+        # YENİ AKILLI ARAMA FONKSİYONUNU ÇAĞIR
+        display_items = smart_search(search_query, products)
+        st.markdown(f"### 📂 '{search_query}' için Sonuçlar ({len(display_items)})")
+        
+        if len(display_items) == 0:
+            st.warning("😔 Aradığınız kriterlere uygun ürün bulunamadı. Lütfen farklı bir kelime deneyin (Örn: Huzur, Lider, Deniz).")
     else:
         display_items = st.session_state.random_products
         st.markdown("### 🍀 Şanslı Öneriler")
 
+    # Grid Sistemi
     cols = st.columns(4)
     
     for idx, p in enumerate(display_items):
         with cols[idx % 4]:
+            # --- KART ---
             if p.get('image'):
                 st.image(p['image'], use_container_width=True)
             else:
-                st.markdown("<div style='height:200px; display:flex; align-items:center; justify-content:center; color:#ccc; background:#f0f0f0; border-radius:10px;'>Görsel Yok</div>", unsafe_allow_html=True)
+                st.markdown("<div style='height:200px; display:flex; align-items:center; justify-content:center; color:#ccc;'>Görsel Yok</div>", unsafe_allow_html=True)
             
             st.markdown(f"<div class='product-title'>{p['name']}</div>", unsafe_allow_html=True)
             
+            # Kartın altına minik etiketler (Varsa)
+            tags = p.get('tags', [])[:2] # İlk 2 etiketi göster
+            tag_html = ""
+            for t in tags:
+                tag_html += f"<span class='tag-badge'>{t}</span>"
+            if tag_html:
+                st.markdown(f"<div style='text-align:center; margin-bottom:10px;'>{tag_html}</div>", unsafe_allow_html=True)
+
             if st.button("İncele", key=f"btn_{p['id']}"):
                 select_product(p)
                 st.rerun()
+            # --- KART SONU ---
 
 # --- MOD 2: DETAY SAYFASI ---
 else:
@@ -282,42 +319,47 @@ else:
 
     with col_left:
         st.markdown("""
-            <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border:1px solid #f0f0f0;">
+            <div style="background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
         """, unsafe_allow_html=True)
         st.image(p['image'], use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
         
+        # Etiketleri Göster
+        st.markdown("### 🏷️ Etiketler")
+        tags = p.get('tags', ["Genel"])
+        for t in tags:
+            st.markdown(f"<span class='tag-badge' style='font-size:14px; padding:6px 12px;'>#{t}</span>", unsafe_allow_html=True)
+
         if p.get('link'):
             st.markdown("<br>", unsafe_allow_html=True)
             st.link_button("🌐 Resmi Sitede Görüntüle", p['link'], use_container_width=True)
 
     with col_right:
-        st.markdown(f"<h1 style='margin-bottom: 5px; color:#000;'>{p['name']}</h1>", unsafe_allow_html=True)
+        st.markdown(f"<h1 style='margin-bottom: 0;'>{p['name']}</h1>", unsafe_allow_html=True)
         
         fiyat = p.get('price', '')
         if fiyat:
-            st.markdown(f"<h3 style='color: #86868b; margin-top: 0; font-weight:400;'>{fiyat}</h3>", unsafe_allow_html=True)
+            st.markdown(f"<h3 style='color: #86868b; margin-top: 0;'>{fiyat}</h3>", unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
 
         hikaye = p.get('short_story', p.get('raw_story', '...'))
         st.markdown(f"""
             <div class="story-box">
-                <span style="font-size: 24px; color:#d4af37;">❝</span><br>
+                <span style="font-size: 20px;">❝</span><br>
                 {hikaye}
             </div>
         """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
-        with st.spinner('Alegorik katmanlar işleniyor...'):
-            time.sleep(0.3)
-            
+        
+        # Alegori Analizi
         alegori = p.get('allegory', "Derin anlam yükleniyor...")
         
         st.markdown(f"""
             <div class="allegory-section">
-                <h4 style="color: #d4af37; margin-top:0; letter-spacing:1px;">👁️ DERİN ANLAM (ALEGORİ)</h4>
-                <p style="color: #1d1d1f; font-size: 16px; line-height: 1.6;">{alegori}</p>
+                <h4 style="color: #d4af37; margin-top:0;">👁️ DERİN ANLAM (ALEGORİ)</h4>
+                <p style="color: #1d1d1f; font-size: 15px; line-height: 1.6;">{alegori}</p>
             </div>
         """, unsafe_allow_html=True)
 
@@ -335,6 +377,6 @@ else:
             else:
                 st.info("**Strateji:** Bağ kurun.")
 
-    # Footer (Sadece detay sayfasında)
+    # Footer
     st.markdown("<br><br><br>", unsafe_allow_html=True)
     st.markdown("<div style='text-align: center; color: #86868b; font-size: 13px;'>Tutku ile yapıldı ❤️</div>", unsafe_allow_html=True)
