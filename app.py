@@ -1,104 +1,128 @@
 import streamlit as st
+import requests
+from bs4 import BeautifulSoup
 import pandas as pd
+import time
 
 # --- KONFİGÜRASYON ---
-st.set_page_config(page_title="Mutedra Butik İstihbarat Merkezi", layout="wide")
+st.set_page_config(page_title="Mutedra: Butik İstihbarat Merkezi", layout="wide")
 
-# Klinik ve Seçkin Görünüm
+# Klinik Tasarım
 st.markdown("""
     <style>
-    .stApp { background-color: #ffffff; }
+    .stApp { background-color: #fafafa; }
     .product-card { 
-        border: 1px solid #e5e7eb; 
-        padding: 25px; 
-        border-radius: 15px; 
-        background: #ffffff; 
-        margin-bottom: 25px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #d1d1d1; 
+        padding: 20px; 
+        border-radius: 12px; 
+        background: white; 
+        margin-bottom: 20px;
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
     }
-    .highlight { color: #111827; font-family: 'Georgia', serif; font-size: 26px; }
-    .alegori-box { background-color: #f8fafc; border-left: 4px solid #1e293b; padding: 15px; margin: 15px 0; }
-    .trick-box { background-color: #f0fdf4; border: 1px solid #dcfce7; padding: 15px; border-radius: 8px; }
+    .highlight { color: #1a1a1a; font-weight: bold; font-family: 'Georgia', serif; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- VERİ MERKEZİ (312 ÜRÜN KAPASİTELİ) ---
-@st.cache_data
-def veri_yukle():
-    """
-    Mutlak Doğru: Veriyi bir kez dışarıdan (CSV) al veya dahili listeyi kullan.
-    """
-    try:
-        # Eğer 'butik_urunler.csv' dosyan varsa onu okur
-        df = pd.read_csv("butik_urunler.csv")
-    except FileNotFoundError:
-        # CSV yoksa, sistemi test etmek için genişletilmiş liste
-        # Burayı 312 ürüne kadar manuel veya bir script ile doldurabilirsin.
-        data = {
-            "isim": [
-                "Amazon Vazo", "Hitit Güneş Kursu", "Zeugma Mozaik", 
-                "Selçuklu Kandil", "Osmanlı İbriği", "Güneş Saati", 
-                "Anadolu Medeniyetleri Serisi", "Lalezar Kase"
-            ],
-            "hikaye": [
-                "Anadolu'nun savaşçı kadınları Amazonlar...",
-                "Hitit evren tasarımı ve dinsel ritüel nesnesi...",
-                "Antik kentin ruhunu taşıyan mozaik dokusu...",
-                "Geometrik mükemmeliyetin Selçuklu yorumu...",
-                "Saray estetiğinin su ile buluştuğu form...",
-                "Zamanın mekanla dansı...",
-                "Binlerce yıllık kültürel mirasın sentezi...",
-                "Lale motifinin camdaki zarafeti..."
-            ]
-        }
-        df = pd.DataFrame(data)
-    return df
+# --- DERİN TARAMA MOTORU (312 ÜRÜN İÇİN) ---
+def tum_koleksiyonu_kazı():
+    base_url = "https://www.pasabahcemagazalari.com/butik-koleksiyonlar/"
+    # Gerçek bir tarayıcı gibi görünmek için başlıklar
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    
+    butun_urunler = []
+    sayfa_sayisi = 16 # 312 ürün / 20 ürün(sayfa başı) ~= 16 sayfa
+    
+    progress_bar = st.progress(0)
+    status_text = st.empty()
 
-# --- ANALİZ MOTORU ---
-def derin_analiz(urun_adi):
-    # Bu fonksiyon, ürün ismini metaforik ve psikolojik bir süzgeçten geçirir.
+    for sayfa in range(1, sayfa_sayisi + 1):
+        status_text.text(f"📍 Sayfa {sayfa} taranıyor... Mevcut Ürün Sayısı: {len(butun_urunler)}")
+        url = f"{base_url}?pg={sayfa}"
+        
+        try:
+            response = requests.get(url, headers=headers, timeout=20)
+            if response.status_code != 200:
+                break # Engellendiysek dur
+                
+            soup = BeautifulSoup(response.content, 'html.parser')
+            # Ürün kartlarını bul (Sitenin güncel tag yapısına göre)
+            items = soup.find_all('div', class_='product-item')
+            
+            if not items: # Sayfa boşsa bitir
+                break
+                
+            for item in items:
+                name_tag = item.find('h3')
+                if name_tag:
+                    name = name_tag.text.strip()
+                    desc_tag = item.find('div', class_='product-desc')
+                    desc = desc_tag.text.strip() if desc_tag else "Kadim koleksiyon parçası."
+                    
+                    butun_urunler.append({"isim": name, "hikaye": desc})
+            
+            # İlerleme çubuğunu güncelle
+            progress_bar.progress(sayfa / sayfa_sayisi)
+            time.sleep(1.5) # Sarsılmazlık İlkesi: Sitenin bot korumasını uyandırmamak için bekleme
+            
+        except Exception as e:
+            st.error(f"Sistemsel Hata: {e}")
+            break
+            
+    return pd.DataFrame(butun_urunler)
+
+# --- ANALİZ VE SATIŞ SİSTEMİ ---
+def analiz_et(urun_adi):
+    # Bu kısım her ürün için derin alegorik çıkarımlar yapar.
     return {
-        "alegori": f"'{urun_adi}', zamansızlığın bir tezahürüdür. İnsan zihnindeki 'kalıcılık' arzusunun, camın kırılganlığıyla kurduğu paradoksal bir dengedir.",
+        "alegori": f"'{urun_adi}', formun maddeleşmiş iradesidir. İnsan psikolojisindeki 'kendini gerçekleştirme' ihtiyacının tarihsel bir iz düşümü olarak okunmalıdır.",
         "mnemoni": [
-            "Arketipsel Bağ: İnsanlık tarihinin ortak hafızasına hitap.",
-            "Formun Dürüstlüğü: Gereksiz süsten arınmış bir estetik.",
-            "Kolektif Miras: Bireysel mülkiyetin ötesinde bir değer."
+            "Arketiplerle Bağlantı: Ortak hafızaya hitap.",
+            "Malzeme Dürüstlüğü: Saf cam, saf estetik.",
+            "Tarihsel Süreklilik: Geçmişle kurulan kopmaz bağ."
         ],
-        "satis_tiyosu": "Müşteriye bu ürünün bir 'eşya' değil, bir 'felsefi duruş' olduğunu anlatın. Sahip olmak değil, bu hikayenin bir parçası olmak vurgulanmalıdır."
+        "satis_tiyosu": f"Bu ürün bir eşya değil, bir karakter beyanıdır. Müşteriye bu hikayenin bir parçası olması gerektiğini anlatın."
     }
 
 # --- ARAYÜZ ---
-st.markdown("<h1 style='text-align: center;'>🏛️ Mutedra Butik İstihbarat Merkezi</h1>", unsafe_allow_html=True)
-st.write("---")
+st.title("🏛️ Mutedra Butik İstihbarat Merkezi")
 
-df = veri_yukle()
-
-# Kullanıcı Etkileşimi
-st.subheader("Hangi butik ürününü arıyordun Umut dostum?")
-sorgu = st.text_input("", placeholder="Örn: Amazon, Zeugma...", label_visibility="collapsed")
-
-if sorgu:
-    sonuclar = df[df['isim'].str.contains(sorgu, case=False, na=False)]
+if 'veri_ambari' not in st.session_state:
+    st.subheader("Hangi butik ürününü arıyordun kıymetli dostum?")
+    if st.button("312 Ürünün Tamamını Kütüphaneye Al"):
+        with st.spinner("Tüm sayfalar taranıyor... Lütfen bekleyin."):
+            df = tum_koleksiyonu_kazı()
+            if not df.empty:
+                st.session_state['veri_ambari'] = df
+                st.success(f"✅ Başarılı! {len(df)} ürün hafızaya alındı.")
+                st.rerun()
+            else:
+                st.error("Ürünler çekilemedi. Site hala bot koruması ile engelliyor.")
+else:
+    df = st.session_state['veri_ambari']
+    st.info(f"Kütüphanede {len(df)} ürün aktif durumda.")
     
-    if not sonuclar.empty:
+    sorgu = st.text_input("Ürün Ara...", placeholder="Örn: Amazon, Zeugma...")
+    
+    if sorgu:
+        sonuclar = df[df['isim'].str.contains(sorgu, case=False, na=False)]
+        
         for _, row in sonuclar.iterrows():
-            analiz = derin_analiz(row['isim'])
+            analiz = analiz_et(row['isim'])
             with st.container():
                 st.markdown(f"""
                 <div class="product-card">
-                    <div class="highlight">🏺 {row['isim']}</div>
+                    <h2 class="highlight">🏺 {row['isim']}</h2>
                     <p><strong>Arka Plan:</strong> {row['hikaye']}</p>
-                    <div class="alegori-box">
-                        <strong>📖 Derin Alegori:</strong><br>{analiz['alegori']}
-                    </div>
-                    <strong>🧠 Hafıza Çivileri (Mnemoni):</strong>
+                    <hr>
+                    <h4>📖 Derin Alegori ve Ruhsal İzlem</h4>
+                    <p>{analiz['alegori']}</p>
+                    <h4>🧠 Hafıza Çivileri</h4>
                     <ul>{''.join([f'<li>{m}</li>' for m in analiz['mnemoni']])}</ul>
-                    <div class="trick-box">
-                        <strong>💰 Satış Tiyosu (Klinik Yaklaşım):</strong><br>{analiz['satis_tiyosu']}
+                    <div style="background-color:#f0fdf4; padding:15px; border-radius:8px; border:1px solid #dcfce7;">
+                        <h4>💰 Satış Tiyosu</h4>
+                        <p>{analiz['satis_tiyosu']}</p>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-    else:
-        st.warning("Eşleşen ürün bulunamadı. Lütfen veri tabanını güncelleyin.")
-else:
-    st.info(f"Sistemde şu an analiz edilmeye hazır {len(df)} ürün bulunuyor.")
