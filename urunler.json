@@ -1,198 +1,163 @@
 [
   {
-    "name": "Header Band Image",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/cms/2024/06/27/7fd4fb3e-70fb-4cda-b202-89db732927c5_size3840_cropCenter.png",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Header Band Image"
-  },
-  {
-    "name": "Nude",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/cms/2024/03/18/5c5efc73-b44a-499d-a1e8-db598f003be7_size3840_cropCenter.png",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Nude"
-  },
-  {
-    "name": "Birgi Mumluk",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130512/4ae1cc98-edb9-472f-ae97-3fc943c0357a_size256_cropCenter.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Birgi Mumluk"
-  },
-  {
-    "name": "Kubad Abad Kase",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/133695/5126558c-7870-4d81-b862-4051f179273c.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Kubad Abad Kase"
-  },
-  {
-    "name": "Türk Kahvesi Seti 6'lı",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/129826/16b5d4b6-3e6a-4553-a93c-08342178c283.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Türk Kahvesi Seti 6'lı"
-  },
-  {
-    "name": "Aziz Mumluk",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/138427/8714569f-1722-4dc9-ac43-9b2930ab16fb.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Aziz Mumluk"
-  },
-  {
     "name": "Asklepios Vazo",
     "price": "Fiyat Sitede",
     "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/23/130910/eee179e2-589f-4177-a9ee-81402080823e.jpg",
     "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Asklepios Vazo"
-  },
-  {
-    "name": "Asur Vazo",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131722/0ef040f6-cd46-47cf-a63c-851a1479b6c4.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Asur Vazo"
-  },
-  {
-    "name": "Akın Alınlık 2",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/10/139338/3dde1ead-b066-4bf9-916c-86450d105012.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Akın Alınlık 2"
-  },
-  {
-    "name": "Esma Gondol",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/05/09/144836/d4fb9a61-7905-4c2d-b514-57fe55548f29.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Esma Gondol"
-  },
-  {
-    "name": "Amazon Vazo",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/09/01/146638/decfe6fa-a0f2-4dea-8f71-514f67b8b374.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Amazon Vazo"
-  },
-  {
-    "name": "Füreya'dan Yansımalar Vazo",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/09/29/147393/47284557-2e93-43ba-a810-4081613cca58.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Füreya'dan Yansımalar Vazo"
-  },
-  {
-    "name": "Asırlık Takvım",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131509/536d2f15-aa07-4fa0-b4ca-dffaef0e5997.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Asırlık Takvım"
-  },
-  {
-    "name": "Lema Gaz Lambası",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/129692/20a005d5-6838-4de9-aa4a-535158905f07.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Lema Gaz Lambası"
-  },
-  {
-    "name": "Çelebi Mumluk",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/23/130243/b42826eb-9773-4c10-9157-faf48eede9db.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Çelebi Mumluk"
-  },
-  {
-    "name": "Can Mumluk",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130491/4de09fc7-90a3-4a4b-8ff6-578e0f2a3649.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Can Mumluk"
-  },
-  {
-    "name": "Yedi Uyurlar Nazarlık",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131007/6484121f-ec57-4d50-8664-e493cd0d4335.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Yedi Uyurlar Nazarlık"
-  },
-  {
-    "name": "Asur Gondol",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130760/20c56d3b-fa1b-4e9b-835f-d51fb1ba3244.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Asur Gondol"
-  },
-  {
-    "name": "Pazırık Kase",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130432/2983e1a9-1496-477b-b9c5-e775d8848c0e.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Pazırık Kase"
-  },
-  {
-    "name": "Kültepe Mumluk",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131132/740b8cda-4799-4018-a82f-8d9612655991.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Kültepe Mumluk"
-  },
-  {
-    "name": "Eşrefoğlu Vazo",
-    "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131119/2f23e658-7a62-4dbe-820f-ed1d103e70d6.jpg",
-    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Eşrefoğlu Vazo"
+    "raw_story": "Bergama Krallığı'ndan ilham alan bu eser, sağlık tanrısı Asklepios'un yılanlı asasını formunda taşır. Şifanın ve yenilenmenin sembolü olan yılan figürü, antik çağlardan günümüze yaşam gücünü temsil eder. Yeşil cam üzerine altın yaldız işlemeler, doğanın ve gücün uyumunu simgeler."
   },
   {
     "name": "Myra Antik Vazo",
     "price": "Fiyat Sitede",
     "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130946/09a0b646-27e4-4788-8968-1bd829ae7c38.jpg",
     "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Myra Antik Vazo"
+    "raw_story": "Likya uygarlığının kaya mezarlarından esinlenerek tasarlanmıştır. Myra antik kentinin taş işçiliği ve ölümü yaşamın bir parçası olarak gören felsefesi, bu vazo üzerindeki rölyeflerde hayat bulur. Geçmişin sessiz tanıklığını mekanlarınıza taşır."
   },
   {
-    "name": "Cevher Şekerlik",
+    "name": "Kubad Abad Kase",
     "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130922/c1e24a2b-eee9-4de7-b8cf-e4a2eea5c31d.jpg",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/133695/5126558c-7870-4d81-b862-4051f179273c.jpg",
     "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Cevher Şekerlik"
+    "raw_story": "Selçuklu Sultanı I. Alaeddin Keykubad'ın yazlık sarayı Kubadabad'daki çini sanatının cama yansımasıdır. Çift başlı kartal ve hayat ağacı motifleri, hakimiyet ve sonsuzluk arzusunu simgeler. Turkuaz ve kobalt mavisi, Selçuklu estetiğinin zirvesidir."
+  },
+  {
+    "name": "Asur Vazo",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131722/0ef040f6-cd46-47cf-a63c-851a1479b6c4.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Mezopotamya'nın savaşçı ve inşaatçı medeniyeti Asurluların duvar kabartmalarından izler taşır. Güç, iktidar ve koruyuculuk sembolü olan Lamassu figürleri ile bezenmiştir. Tarihin ilk imparatorluklarından birinin heybetini yansıtır."
+  },
+  {
+    "name": "Eşrefoğlu Vazo",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131119/2f23e658-7a62-4dbe-820f-ed1d103e70d6.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Beyşehir Eşrefoğlu Camii'nin ahşap sütun ve kalem işi süslemelerinden ilham alınmıştır. Anadolu'nun ahşap direkli cami geleneğinin en nadide örneği olan bu motifler, sabrın ve ince işçiliğin cam üzerindeki tezahürüdür."
+  },
+  {
+    "name": "Füreya'dan Yansımalar Vazo",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/09/29/147393/47284557-2e93-43ba-a810-4081613cca58.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Türkiye'nin ilk kadın seramik sanatçısı Füreya Koral'ın soyut ve dışavurumcu tarzına bir saygı duruşudur. Geleneksel ile modernin, doğu ile batının iç içe geçtiği, sınırların kalktığı bir sanat anlayışını temsil eder."
   },
   {
     "name": "41 Maşallah Kase",
     "price": "Fiyat Sitede",
     "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131006/cbff80fd-d04a-4e22-951a-f994ac581b54.jpg",
     "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "41 Maşallah Kase"
+    "raw_story": "Nazardan korunma inancının en güçlü sembollerinden biridir. Üzerindeki hat sanatı ve geometrik bezemeler, kötü enerjiyi uzaklaştırmak ve bereketi çağırmak için tasarlanmıştır. Geleneksel Türk ev kültürünün vazgeçilmez bir parçasıdır."
   },
   {
     "name": "Süleymaniye Kase",
     "price": "Fiyat Sitede",
     "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130937/6d24d8a2-4881-45d7-88de-6bb086e03c98.jpg",
     "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Süleymaniye Kase"
+    "raw_story": "Mimar Sinan'ın kalfalık eseri Süleymaniye Camii'nin kubbe desenlerinden ve vitraylarından esinlenilmiştir. Osmanlı İmparatorluğu'nun zirve dönemindeki estetik anlayışı, dengenin ve ihtişamın kusursuz birleşimini sunar."
   },
   {
-    "name": "QR Code",
+    "name": "Yedi Uyurlar Nazarlık",
     "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/cms/2024/11/21/27f56418-ab7c-467b-b018-ebc5fcaf0b3a_size128_cropCenter.png",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131007/6484121f-ec57-4d50-8664-e493cd0d4335.jpg",
     "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "QR Code"
+    "raw_story": "Ashab-ı Kehf efsanesinden yola çıkılarak tasarlanan bu eser, inanç, sabır ve mucizevi korunuşu simgeler. Yedi Uyurlar'ın isimlerinin hat sanatı ile işlendiği bu nazarlık, manevi bir kalkan görevi görür."
   },
   {
-    "name": "App Store Bağlantısı 0",
+    "name": "Amazon Vazo",
     "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/cms/2025/06/30/460255da-8684-4f43-9cff-5cf0102f45b9_size384_cropCenter.png",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/09/01/146638/decfe6fa-a0f2-4dea-8f71-514f67b8b374.jpg",
     "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "App Store Bağlantısı 0"
+    "raw_story": "Karadeniz bölgesinde yaşadığına inanılan efsanevi kadın savaşçılar Amazonlar'dan ilham alır. Savaşçı ruhu, bağımsızlığı ve kadın gücünü simgeleyen figürlerle bezenmiştir. Mat ve parlak yüzeylerin kontrastı, Amazonların sert doğasını yansıtır."
   },
   {
-    "name": "Play Store Bağlantısı 1",
+    "name": "Pazırık Kase",
     "price": "Fiyat Sitede",
-    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/cms/2025/06/30/e2cfd1ef-748a-4b8a-9599-df1a1254e03c_size384_cropCenter.png",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130432/2983e1a9-1496-477b-b9c5-e775d8848c0e.jpg",
     "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
-    "raw_story": "Play Store Bağlantısı 1"
+    "raw_story": "Dünyanın bilinen en eski düğümlü halısı olan Pazırık Halısı'nın motiflerini taşır. Orta Asya Türk kültürünün, bozkır yaşamının ve hayvan üslubunun cam üzerindeki eşsiz yorumudur. Tarihin derinliklerinden gelen bir mirası temsil eder."
+  },
+  {
+    "name": "Birgi Mumluk",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130512/4ae1cc98-edb9-472f-ae97-3fc943c0357a_size256_cropCenter.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Aydınoğulları Beyliği'nin başkenti Birgi'deki sivil mimari örneklerinden ve ahşap işçiliğinden izler taşır. Ege'nin sıcaklığını ve tarihi dokusunu, mum ışığının huzuruyla birleştirir."
+  },
+  {
+    "name": "Aziz Mumluk",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/138427/8714569f-1722-4dc9-ac43-9b2930ab16fb.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "İstanbul'un manevi koruyucularına atfedilen, mistik ve dingin bir tasarım. Işık ve gölge oyunlarıyla mekanın atmosferini değiştiren, iç huzura yönelten bir objedir."
+  },
+  {
+    "name": "Türk Kahvesi Seti 6'lı",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/129826/16b5d4b6-3e6a-4553-a93c-08342178c283.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "40 yıllık hatırın cam ile buluşması. Geleneksel kahve ritüelini modern bir sunumla birleştiren, dostluk ve muhabbet meclislerinin vazgeçilmez parçası."
+  },
+  {
+    "name": "Akın Alınlık 2",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/10/139338/3dde1ead-b066-4bf9-916c-86450d105012.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Geleneksel mimaride kapı üstlerini süsleyen alınlıkların modernize edilmiş halidir. Eve gelenleri karşılayan ilk detay olarak, bereketi ve iyi dilekleri simgeler."
+  },
+  {
+    "name": "Esma Gondol",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/05/09/144836/d4fb9a61-7905-4c2d-b514-57fe55548f29.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Esma-ül Hüsna'nın manevi derinliğinden esinlenerek tasarlanmış, zarafet ve huşu uyandıran bir form. Mekanlarda denge ve estetik bir odak noktası oluşturur."
+  },
+  {
+    "name": "Asırlık Takvim",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131509/536d2f15-aa07-4fa0-b4ca-dffaef0e5997.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Zamanın döngüselliğini ve sonsuzluğunu simgeleyen, geçmiş ve geleceği aynı düzlemde buluşturan bir masa objesi. Mekanik estetiğin camla buluşması."
+  },
+  {
+    "name": "Lema Gaz Lambası",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/129692/20a005d5-6838-4de9-aa4a-535158905f07.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Elektrik öncesi çağların nostaljisini modern bir formla sunar. Işığın en doğal ve romantik halini yaşatan, geçmişe özlem duyanlar için tasarlanmış bir aydınlatma aracı."
+  },
+  {
+    "name": "Çelebi Mumluk",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/23/130243/b42826eb-9773-4c10-9157-faf48eede9db.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Evliya Çelebi'nin seyahatlerinden ve keşif ruhundan ilham alır. Dünyayı aydınlatan bilginin ve görgünün bir metaforu olarak tasarlanmıştır."
+  },
+  {
+    "name": "Can Mumluk",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130491/4de09fc7-90a3-4a4b-8ff6-578e0f2a3649.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Mevlana'nın 'Can' felsefesinden yola çıkarak, ruhun aydınlanmasını ve içsel yolculuğu simgeler. Yalın formuyla tasavvufi bir derinlik sunar."
+  },
+  {
+    "name": "Asur Gondol",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130760/20c56d3b-fa1b-4e9b-835f-d51fb1ba3244.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Asur medeniyetinin ihtişamlı saray sofralarından ilham alan, geniş ve gösterişli bir form. Bereketin ve zenginliğin sunumudur."
+  },
+  {
+    "name": "Kültepe Mumluk",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/131132/740b8cda-4799-4018-a82f-8d9612655991.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Anadolu'nun yazı ile tanıştığı Kültepe Kanış Karum'daki arkeolojik buluntulardan esinlenilmiştir. Tarihin başlangıcına yapılan bir ışık yolculuğudur."
+  },
+  {
+    "name": "Cevher Şekerlik",
+    "price": "Fiyat Sitede",
+    "image": "https://08d6fb-pasabahce.akinoncloudcdn.com/products/2025/01/08/130922/c1e24a2b-eee9-4de7-b8cf-e4a2eea5c31d.jpg",
+    "link": "https://www.pasabahcemagazalari.com/butik-koleksiyonlar",
+    "raw_story": "Doğadaki değerli taşların ve kristallerin ham güzelliğinden ilham alır. İçindeki tatlıyı bir mücevher gibi saklayan ve sunan özel bir tasarım."
   }
 ]
