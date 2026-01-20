@@ -50,7 +50,7 @@ st.markdown("""
     .allegory-section { background-color: #f5f5f7; padding: 25px; border-radius: 18px; margin-top: 20px; }
     .tag-badge { background-color: #e5e5ea; color: #1d1d1f; padding: 4px 8px; border-radius: 6px; font-size: 11px; margin-right: 5px; display: inline-block; margin-bottom: 5px; }
     
-    /* MOBİL MENÜ BUTONU (DİKKAT ÇEKİCİ) */
+    /* MOBİL MENÜ BUTONU */
     [data-testid="stSidebarCollapsedControl"] {
         background-color: #ffffff; color: #d4af37 !important; border: 2px solid #d4af37;
         border-radius: 50%; width: 50px; height: 50px; transform: scale(1.2);
@@ -59,11 +59,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 3. VERİ MOTORU ---
+# --- 3. VERİ MOTORU (DÜZELTİLDİ: urunler2.json) ---
 @st.cache_data
 def load_data():
     try:
-        with open('urunler.json', 'r', encoding='utf-8') as f:
+        # İŞTE BURASI: Artık temizlenen yeni dosyaya bakıyor
+        with open('urunler2.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
             # ID ataması
             for i, item in enumerate(data):
@@ -102,20 +103,17 @@ with st.sidebar:
     elif menu == "📢 Duyurular":
         st.warning("**BUTİK SİHİRBAZI HAKKINDA**\n\nBu sistem, **Palladium ve Hilltown Paşabahçe Mağazaları** tarafından geliştirilmiştir.\n\n**⚠️ Dipnot:** Yoğunluk sebebiyle aksaklıklar yaşanabilir.")
     
+    # EMEĞİ GEÇENLER KARTI
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    # KİMLİK KARTI (TEK SATIR HTML - HATA VERMEZ)
     st.markdown("""<div style='background-color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #d2d2d7; text-align: center; color: #1d1d1f; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'><div style='font-size: 15px; font-weight: bold; margin-bottom: 5px; color: #000;'>Designed by Umut Doğan</div><div style='font-size: 12px; color: #555; margin-bottom: 15px;'>(Tasarım & Kodlama)</div><div style='border-top: 1px solid #e5e5e5; margin: 10px 20px;'></div><div style='font-size: 13px; font-weight: 700; color: #555; margin-bottom: 8px; letter-spacing: 1px;'>EMEĞİ GEÇENLER</div><div style='font-size: 14px; font-weight: 500; line-height: 1.8; color: #333;'>Adem Keleş<br>Fatih Demir<br>Nuriye Kulaksız</div><div style='border-top: 1px solid #e5e5e5; margin: 15px 20px;'></div><div style='font-size: 12px; font-weight: 700; color: #d4af37;'>Palladium ve Hilltown<br>Mağazaları Ürünüdür.</div></div>""", unsafe_allow_html=True)
 
 # --- 5. ANA EKRAN MANTIĞI ---
 
-# ARAMA ALGORİTMASI
 def smart_search(query, products):
     if not query: return []
     query = query.lower()
     results = []
     for p in products:
-        # İsim, hikaye, etiket, alegori veya tiyolarda ara
         text_data = (p.get('name', '') + " " + p.get('short_story', '') + " " + p.get('raw_story', '') + " " + " ".join(p.get('tags', [])) + " " + p.get('allegory', '') + " " + " ".join(p.get('sales_tips', []))).lower()
         if query in text_data:
             results.append(p)
@@ -125,7 +123,7 @@ def smart_search(query, products):
 if st.session_state.selected_product is None:
     c1, c2, c3 = st.columns([1, 6, 1])
     with c2:
-        st.markdown("<h1 style='text-align: center; font-size: 40px;'>Yol yordam bulalım mı?</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; font-size: 40px;'>Koleksiyonu Keşfet.</h1>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #86868b; font-size: 18px;'>Her hikaye dinlemeye değerdir.</p>", unsafe_allow_html=True)
         search_query = st.text_input("", placeholder="🔍 Duygu, Meslek, Kişi veya Ürün Ara (Örn: Doktor, Aşk, Güç)", label_visibility="collapsed", key="main_search")
 
