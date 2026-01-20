@@ -159,7 +159,7 @@ st.markdown("""
 @st.cache_data
 def load_data():
     try:
-        with open('urunler.json', 'r', encoding='utf-8') as f:
+        with open('urunler2.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
             for i, item in enumerate(data):
                 item['id'] = i
