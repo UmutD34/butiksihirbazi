@@ -38,4 +38,89 @@ def urunleri_getir():
     urun_listesi = []
     
     try:
-        #
+        # İlk 3 sayfayı tarayarak sistemi test edelim (Hız için)
+        for sayfa in range(1, 4):
+            url = f"{base_url}?pg={sayfa}"
+            response = requests.get(url, headers=headers, timeout=15)
+            
+            if response.status_code != 200:
+                continue
+                
+            soup = BeautifulSoup(response.content, 'html.parser')
+            # Sitenin güncel HTML yapısına göre ürünleri yakala
+            items = soup.find_all('div', class_='product-item')
+            
+            for item in items:
+                name = item.find('h3').text.strip() if item.find('h3') else "Bilinmeyen Ürün"
+                # Link ve kısa açıklama ayıklama
+                link = item.find('a')['href'] if item.find('a') else "#"
+                desc = item.find('div', class_='product-desc')
+                desc_text = desc.text.strip() if desc else "Koleksiyonun özel bir parçası."
+                
+                urun_listesi.append({
+                    "isim": name,
+                    "hikaye": desc_text,
+                    "link": f"https://www.pasabahcemagazalari.com{link}"
+                })
+            time.sleep(1) # Sitenin engellememesi için klinik bekleme
+            
+    except Exception as e:
+        st.error(f"Teknik bir aksama yaşandı: {e}")
+        
+    return pd.DataFrame(urun_listesi)
+
+# --- ANALİZ VE SATIŞ SİMÜLASYONU ---
+def analiz_et(urun_adi):
+    # Bu bölüm, senin istediğin alegorik ve derinlikli yapıyı kurgular.
+    return {
+        "alegori": f"{urun_adi}, maddeselliğin ötesine geçerek ruhun camdaki yansımasını simgeler. Formu, kadim Anadolu bilgisinin modern dünyadaki sessiz çığlığıdır.",
+        "mnemoni": [
+            "Zamansız Estetik: Trendlerin ötesinde bir varoluş.",
+            "Teknik Mükemmeliyet: Kusursuz bir geometrik disiplin.",
+            "Sembolik Değer: Her detayında gizli bir tarihsel kod."
+        ],
+        "satis_tiyosu": "Müşteriye nesnenin fonksiyonunu değil, onunla kuracağı 'ruhsal bağı' anlatın. Bu ürün bir eşya değil, bir karakter beyanıdır."
+    }
+
+# --- ARAYÜZ ---
+st.title("🏛️ Mutedra Butik İstihbarat Merkezi")
+st.write("Veri kazıma başarısı, kodun hedef sitenin yapısına ne kadar uyum sağladığına bağlıdır.")
+
+if 'data' not in st.session_state:
+    if st.button("Koleksiyonu Veritabanına Al"):
+        with st.spinner("Koleksiyonun derinliklerine iniliyor..."):
+            df = urunleri_getir()
+            if not df.empty:
+                st.session_state['data'] = df
+                st.success(f"Tarama Tamamlandı! {len(df)} ürün sisteme dahil edildi.")
+            else:
+                st.error("Ürünler çekilemedi. Site bot koruması kullanıyor olabilir.")
+
+if 'data' in st.session_state:
+    df = st.session_state['data']
+    sorgu = st.text_input("Hangi butik ürününü arıyordun Umut dostum?", placeholder="Örn: Amazon, Hitit...")
+
+    if sorgu:
+        sonuc = df[df['isim'].str.contains(sorgu, case=False, na=False)]
+        
+        if not sonuc.empty:
+            for _, row in sonuc.iterrows():
+                analiz = analiz_et(row['isim'])
+                with st.container():
+                    st.markdown(f"""
+                    <div class="product-card">
+                        <h2 class="highlight">🏺 {row['isim']}</h2>
+                        <p><strong>Orijinal Tanım:</strong> {row['hikaye']}</p>
+                        <hr>
+                        <h4>📖 Derin Alegori ve Ruhsal İzlem</h4>
+                        <p>{analiz['alegori']}</p>
+                        <h4>🧠 Hafıza Çivileri (Mnemoni)</h4>
+                        <ul>{''.join([f'<li>{m}</li>' for m in analiz['mnemoni']])}</ul>
+                        <div class="trick-box">
+                            <h4>💰 Satış Tiyosu</h4>
+                            <p>{analiz['satis_tiyosu']}</p>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        else:
+            st.warning("Eşleşen ürün bulunamadı.")
